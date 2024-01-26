@@ -1,5 +1,9 @@
 package com.example.demo.page;
 
+import static com.example.demo.page.PageConstant.GUIDELAYOUT;
+import static com.example.demo.page.PageConstant.MAINLAYOUT;
+import static com.example.demo.page.PageConstant.TOPLAYOUT;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,14 +15,20 @@ import org.springframework.core.io.ByteArrayResource;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import jakarta.annotation.PostConstruct;
 
@@ -39,7 +49,56 @@ abstract public class VerticalPageBase extends VerticalLayout {
 	 */
 	@PostConstruct
 	public void postConstructor() {
-		add(createComponent());
+		HorizontalLayout topLayout = new HorizontalLayout();
+		registerComponent(TOPLAYOUT, topLayout);
+		topLayout.setWidthFull();
+
+		Component mainComponent = createComponent();
+		registerComponent(MAINLAYOUT, mainComponent);
+		((HasSize)mainComponent).setWidth("95%");
+		
+		topLayout.add(mainComponent);
+
+		VerticalLayout guideLayout = new VerticalLayout();
+		guideLayout.setWidth("5%");
+		// guideLayout.addClassName(LumoUtility.Border.ALL);
+		// guideLayout.addClassName(LumoUtility.BorderColor.CONTRAST_20);
+		
+		Component guideContents = createGuideComponent();
+
+		Icon icon = VaadinIcon.CHEVRON_CIRCLE_RIGHT.create();
+		Icon icon2 = VaadinIcon.CHEVRON_CIRCLE_LEFT.create();
+		icon.addClickListener(i -> {
+			guideContents.setVisible(false);
+			((HasSize)mainComponent).setWidth("95%");
+			guideLayout.setWidth("5%");
+			icon2.setVisible(true);
+			icon.setVisible(false);
+					guideLayout.removeClassName(LumoUtility.Border.ALL);
+		guideLayout.removeClassName(LumoUtility.BorderColor.CONTRAST_20);
+		});
+		icon2.addClickListener(i -> {
+			guideContents.setVisible(true);
+			((HasSize)mainComponent).setWidth("70%");
+			guideLayout.setWidth("30%");
+			icon2.setVisible(false);
+			icon.setVisible(true);
+					guideLayout.addClassName(LumoUtility.Border.ALL);
+		guideLayout.addClassName(LumoUtility.BorderColor.CONTRAST_20);
+			
+		});
+		icon.setVisible(false);
+		guideContents.setVisible(false);
+		
+		guideLayout.add(icon);
+		guideLayout.add(icon2);
+		guideLayout.add(guideContents);
+
+		
+		registerComponent(GUIDELAYOUT, guideLayout);
+		topLayout.add(guideLayout);
+
+		add(topLayout);
 	}
 
 	/**
@@ -48,6 +107,11 @@ abstract public class VerticalPageBase extends VerticalLayout {
 	 * @return Component
 	 */
 	protected abstract Component createComponent();
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		layout.add(new Text("NO DATA"));
+		return layout;
+	}
 
 	/**
 	 * Set component colspan.
