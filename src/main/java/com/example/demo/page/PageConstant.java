@@ -39,4 +39,7 @@ public class PageConstant {
 	public static final String TABSHEET = "tabsheet";
 	public static final String TEST_NAME_DIALOG = "testNameDialog";
 	public static final String TEST_NAME_DIALOG_BUTTON = "selecttestbutton";
+	public static final String TOPLAYOUT = "toplayout";
+	public static final String MAINLAYOUT = "mainlayout";
+	public static final String GUIDELAYOUT = "guidelayout";
 }
