@@ -2,12 +2,14 @@ package com.example.demo.page.api;
 
 import static com.example.demo.page.PageConstant.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.entity.Parameter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -67,5 +69,16 @@ public class ApiUpdatePage extends ApiCommonInputPage implements BeforeEnterObse
 			i.setApi(api);
 			parameterRepository.save(i);
 		});
+	}
+	@Override
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		getCommonGuideDetails().forEach(i -> layout.add(i));
+		
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "update", "guide.apiUpdate.update" });
+		detailContentList.add(new String[] { "delete", "guide.apiUpdate.delete" });
+		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		return layout;
 	}
 }

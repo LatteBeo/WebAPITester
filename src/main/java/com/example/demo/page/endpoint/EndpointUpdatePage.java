@@ -5,9 +5,13 @@ import static com.example.demo.page.PageConstant.CONFIRM_DIALOG;
 import static com.example.demo.page.PageConstant.CONFIRM_DIALOG_BUTTON;
 import static com.example.demo.page.PageConstant.FIELD_ENDPOINT_ID;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -51,5 +55,17 @@ public class EndpointUpdatePage extends EndpointCommonInputPage implements Befor
 		String id = event.getRouteParameters().get(FIELD_ENDPOINT_ID).orElse("");
 		endpoint = endpointRepository.findById(Integer.parseInt(id)).get();
 		binder.readBean(endpoint);
+	}
+	@Override
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		getCommonDetails().forEach(i -> layout.add(i));
+		
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "update", "guide.endpointUpdate.update" });
+		detailContentList.add(new String[] { "delete", "guide.endpointUpdate.delete" });
+		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		
+		return layout;
 	}
 }

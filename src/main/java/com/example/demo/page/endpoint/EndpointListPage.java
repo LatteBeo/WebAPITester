@@ -55,4 +55,15 @@ public class EndpointListPage extends VerticalPageBase {
 			linkComponent.setRoute(EndpointUpdatePage.class, new RouteParameters(map));
 		});
 	}
+	@Override
+	protected Component createGuideComponent() {
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "registerEndpoint", "guide.endpointList.registerEndpoint" });
+		
+		
+		
+		VerticalLayout layout = new VerticalLayout();
+		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		return layout;
+	}
 }

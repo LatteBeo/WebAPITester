@@ -57,5 +57,13 @@ public class TestListPage extends VerticalPageBase {
 			linkComponent.setRoute(TestUpdatePage.class, new RouteParameters(map));
 		});
 	}
+	@Override
+	protected Component createGuideComponent() {
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "registerTest", "guide.testList.registerTest" });
+		VerticalLayout layout = new VerticalLayout();
+		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		return layout;
+	}
 
 }

@@ -4,11 +4,15 @@ import static com.example.demo.page.PageConstant.FIELD_ENDPOINT_ID;
 import static com.example.demo.page.PageConstant.FIELD_ENDPOINT_NAME;
 import static com.example.demo.page.PageConstant.FIELD_ENDPOINT_URL;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.entity.Endpoint;
 import com.example.demo.page.VerticalPageBase;
 import com.example.demo.repository.EndpointRepository;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -44,6 +48,12 @@ abstract class EndpointCommonInputPage extends VerticalPageBase {
 		binder.bind((TextField) getComponent(FIELD_ENDPOINT_NAME), "name");
 		binder.bind((TextField) getComponent(FIELD_ENDPOINT_URL), "url");
 		return layout;
+	}
+	protected List<Details> getCommonDetails() {
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "endpointName", "guide.endpointRegister.endpointName" });
+		detailContentList.add(new String[] { "endpointUrl", "guide.endpointRegister.endpointUrl" });
+		return createGuideDetails(detailContentList);
 	}
 
 }

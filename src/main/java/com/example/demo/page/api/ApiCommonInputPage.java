@@ -16,6 +16,7 @@ import com.example.demo.repository.ApiRepository;
 import com.example.demo.repository.ParameterRepository;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -76,5 +77,15 @@ abstract class ApiCommonInputPage extends VerticalPageBase {
 		for (int x = 0; x < 20; x++) {
 			parameterBinderList.get(x).writeBean(parameterList.get(x));
 		}
+	}
+	/**
+	 * Get common guide details.
+	 * @return Guide details list
+	 */
+	protected List<Details> getCommonGuideDetails() {
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "apiName", "guide.apiRegister.apiName" });
+		detailContentList.add(new String[] { "parameterName", "guide.apiRegister.parameterName" });
+		return createGuideDetails(detailContentList);
 	}
 }

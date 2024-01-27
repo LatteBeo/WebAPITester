@@ -37,7 +37,7 @@ public class ApiListPage extends VerticalPageBase {
 	protected Component createComponent() {
 		VerticalLayout layout = new VerticalLayout();
 		layout.setWidth(1000, Unit.PIXELS);
-		
+
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.add(new RouterLink(getTranslation("registerAPI"), ApiRegisterPage.class));
 		Anchor anchor = new Anchor("/rest/api/download", getTranslation("download"));
@@ -45,7 +45,7 @@ public class ApiListPage extends VerticalPageBase {
 		hl.add(anchor);
 		layout.add(hl);
 		hl.add(new RouterLink(getTranslation("upload"), ApiUploadPage.class));
-		
+
 		layout.add(createGrid());
 		return layout;
 	}
@@ -68,5 +68,16 @@ public class ApiListPage extends VerticalPageBase {
 			link.setText(api.getName());
 			link.setRoute(ApiUpdatePage.class, new RouteParameters(map));
 		});
+	}
+
+	@Override
+	protected Component createGuideComponent() {
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "registerAPI", "guide.apiList.registerAPI" });
+		detailContentList.add(new String[] { "download", "guide.apiList.download" });
+		detailContentList.add(new String[] { "upload", "guide.apiList.upload" });
+		VerticalLayout layout = new VerticalLayout();
+		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		return layout;
 	}
 }

@@ -19,7 +19,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -35,6 +37,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.ValidationException;
@@ -171,4 +174,20 @@ public class ApiTestSendPage extends ApiTestPageBase implements BeforeEnterObser
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		getCommonDetails().forEach(i -> layout.add(i));
+		
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "apiTestPageBase.01", "guide.apiTestSendPage.01" });
+		detailContentList.add(new String[] { "expectedValue", "guide.apiTestSendPage.expectedValue" });
+		
+		
+		
+		return layout;
+	}
+	
+	
 }

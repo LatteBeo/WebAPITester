@@ -11,6 +11,7 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog.ConfirmEvent;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -184,5 +185,23 @@ public class ComponentService {
 			dialog.open();
 		});
 		return button;
+	}
+	/**
+	 * Create Details instance for guide page.
+	 * @param title Detail title
+	 * @param content Detail content
+	 * @return Details instance
+	 */
+	public Details createGuideDetails(String title, String content) {
+		TextArea textArea = createTextArea("", 999999);
+		textArea.setWidthFull();
+		textArea.setEnabled(false);
+		
+		textArea.getStyle().set("--lumo-disabled-text-color", "black");
+		
+		textArea.setValue(content);
+		Details details = new Details(title, textArea);
+		details.setWidthFull();
+		return details;
 	}
 }

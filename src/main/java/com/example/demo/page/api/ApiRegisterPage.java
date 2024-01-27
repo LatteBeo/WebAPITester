@@ -1,13 +1,15 @@
 package com.example.demo.page.api;
 
+import static com.example.demo.page.PageConstant.BUTTON_REGISTER;
+
 import com.example.demo.entity.Parameter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
-import static com.example.demo.page.PageConstant.*;
 
 /**
  * API register page.
@@ -46,5 +48,11 @@ public class ApiRegisterPage extends ApiCommonInputPage implements BeforeEnterOb
 		for (int i = 0; i < 20; i++) {
 			parameterList.add(new Parameter());
 		}
+	}
+	@Override
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		getCommonGuideDetails().forEach(i -> layout.add(i));
+		return layout;
 	}
 }

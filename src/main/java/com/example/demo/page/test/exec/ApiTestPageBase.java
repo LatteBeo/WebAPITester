@@ -33,14 +33,17 @@ import com.example.demo.repository.ApiRepository;
 import com.example.demo.repository.EndpointRepository;
 import com.example.demo.repository.TestParameterRepository;
 import com.example.demo.repository.TestRepository;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -296,15 +299,17 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 		return list;
 	}
 
-	protected void writeBeansForRegisterOrUpdate() {
+	protected boolean writeBeansForRegisterOrUpdate() {
 		try {
 			testBinder.writeBean(test);
 			for (int x = 0; x < 20; x++) {
 				testParameterBinderList.get(x).writeBean(testParameterList.get(x));
 				testAssertionBinderList.get(x).writeBean(testAssertionList.get(x));
 			}
+			return true;
 		} catch (ValidationException e) {
-			return;
+			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -337,4 +342,18 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 		}
 
 	}
+	protected List<Details> getCommonDetails() {
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "endpointUrl", "guide.testPageBase.endpointUrl" });
+		detailContentList.add(new String[] { "apiName", "guide.testPageBase.apiName" });
+		detailContentList.add(new String[] { "method", "guide.testPageBase.method" });
+		detailContentList.add(new String[] { "parameterAndName", "guide.testPageBase.parameterAndName" });
+		
+		return createGuideDetails(detailContentList);
+		
+
+	}
+	
+	
+	
 }

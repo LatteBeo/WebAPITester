@@ -9,6 +9,7 @@ import static com.example.demo.page.PageConstant.GRID;
 import static com.example.demo.page.PageConstant.GRID2;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -57,7 +59,9 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 		testBinder.bind((IntegerField) getComponent(FIELD_TEST_ID), "id");
 
 		addComponent(layout, BUTTON_UPDATE, componentService.createButton(getTranslation("update"), i -> {
-			writeBeansForRegisterOrUpdate();
+			if (!writeBeansForRegisterOrUpdate()) {
+				return;
+			}
 			execUpdate();
 			this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
 		}));
@@ -150,5 +154,19 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 				link.setVisible(false);
 			}
 		});
+	}
+	@Override
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		getCommonDetails().forEach(i -> layout.add(i));
+		
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "apiTestPageBase.01", "guide.apiTestSendPage.01" });
+		detailContentList.add(new String[] { "expectedValue", "guide.apiTestSendPage.expectedValue" });
+		
+		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		
+		
+		return layout;
 	}
 }

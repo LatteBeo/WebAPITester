@@ -15,7 +15,10 @@ import com.example.demo.page.SingleFileUploadPageBase;
 import com.example.demo.repository.ApiRepository;
 import com.example.demo.repository.ParameterRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.router.Route;
@@ -62,5 +65,11 @@ public class ApiUploadPage extends SingleFileUploadPageBase {
 			this.getUI().ifPresent(ui -> ui.navigate(ApiListPage.class));
 		});
 		return button;
+	}
+	@Override
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		layout.add(new Text(getTranslation("guide.apiUpload.summary")));
+		return layout;
 	}
 }

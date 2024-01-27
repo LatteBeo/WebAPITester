@@ -2,6 +2,7 @@ package com.example.demo.page.endpoint;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.Route;
 import static com.example.demo.page.PageConstant.*;
@@ -26,6 +27,12 @@ public class EndpointRegisterPage extends EndpointCommonInputPage {
 			endpointRepository.save(endpoint);
 			this.getUI().ifPresent(ui -> ui.navigate(EndpointListPage.class));
 		}));
+		return layout;
+	}
+	@Override
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		getCommonDetails().forEach(i -> layout.add(i));
 		return layout;
 	}
 }

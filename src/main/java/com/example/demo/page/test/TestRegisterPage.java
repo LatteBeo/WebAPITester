@@ -2,6 +2,9 @@ package com.example.demo.page.test;
 
 import static com.example.demo.page.PageConstant.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.entity.TestAssertion;
@@ -11,6 +14,7 @@ import com.example.demo.repository.TestAssertionRepository;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -63,5 +67,19 @@ public class TestRegisterPage extends ApiTestPageBase implements BeforeEnterObse
 		}
 		Grid<TestAssertion> grid2 = (Grid<TestAssertion>) getComponent(GRID2);
 		grid2.setItems(testAssertionList);
+	}
+	@Override
+	protected Component createGuideComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		getCommonDetails().forEach(i -> layout.add(i));
+		
+		List<String[]> detailContentList = new ArrayList<>();
+		detailContentList.add(new String[] { "apiTestPageBase.01", "guide.apiTestSendPage.01" });
+		detailContentList.add(new String[] { "expectedValue", "guide.apiTestSendPage.expectedValue" });
+		
+		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		
+		
+		return layout;
 	}
 }
