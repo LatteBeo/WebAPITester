@@ -39,7 +39,9 @@ public class TestRegisterPage extends ApiTestPageBase implements BeforeEnterObse
 		testBinder.bind((TextField) getComponent(FIELD_TEST_MEMO), "memo");
 
 		addComponent(layout, BUTTON_REGISTER, componentService.createButton(getTranslation("register"), i -> {
-			writeBeansForRegisterOrUpdate();
+			if (!writeBeansForRegisterOrUpdate()) {
+				return;
+			}
 			execRegister();
 			this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
 		}));
