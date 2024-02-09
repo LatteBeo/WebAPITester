@@ -28,12 +28,12 @@ public class TestParamField extends CustomField<TestParameter> {
 	}
 
 	public TestParamField() {
-		nameField.setItems(Collections.EMPTY_LIST);
+		nameField.setItems(Collections.emptyList());
 		nameField.setAllowCustomValue(true);
 		nameField.addCustomValueSetListener(e -> {
 			String customValue = e.getDetail();
 			List<String> items = new ArrayList<>();
-			e.getSource().getGenericDataView().getItems().forEach(i -> items.add(i));
+			e.getSource().getGenericDataView().getItems().forEach(items::add);
 			items.add(customValue);
 			e.getSource().setItems(items);
 			e.getSource().setValue(customValue);
@@ -56,14 +56,7 @@ public class TestParamField extends CustomField<TestParameter> {
 	}
 
 	@Override
-	protected void setPresentationValue(TestParameter newPresentationValue) {
-		nameField.setValue(newPresentationValue.getName());
-		valueField.setValue(newPresentationValue.getValue());
-		idField.setValue(newPresentationValue.getId());
-
-	}
-
-	public void setValues(TestParameter newPresentationValue) {
+	public void setPresentationValue(TestParameter newPresentationValue) {
 		nameField.setValue(newPresentationValue.getName());
 		valueField.setValue(newPresentationValue.getValue());
 		idField.setValue(newPresentationValue.getId());

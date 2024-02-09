@@ -7,6 +7,7 @@ import static com.example.demo.page.PageConstant.FIELD_TEST_RESULT;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,11 +30,11 @@ import com.vaadin.flow.router.Route;
 public class TestResultPage extends VerticalPageBase implements BeforeEnterObserver {
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	TestResultRepository testResultRepository;
+	transient TestResultRepository testResultRepository;
 	@Autowired
-	TestAssertionRepository testAssertionRepository;
+	transient TestAssertionRepository testAssertionRepository;
 	@Autowired
-	TestAssertResultRepository testAssertResultRepository;
+	transient TestAssertResultRepository testAssertResultRepository;
 
 	@Override
 	protected Component createComponent() {
@@ -64,8 +65,16 @@ public class TestResultPage extends VerticalPageBase implements BeforeEnterObser
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		String testResultId = event.getRouteParameters().get("testresultid").get();
-		TestResult testResult = testResultRepository.findById(Integer.parseInt(testResultId)).get();
+		Optional<String> optId = event.getRouteParameters().get("testresultid");
+		if (optId.isEmpty()) {
+			return;
+		}
+		String testResultId = optId.get();
+		Optional<TestResult> optResult = testResultRepository.findById(Integer.parseInt(testResultId));
+		if (optResult.isEmpty()) {
+			return;
+		}
+		TestResult testResult = optResult.get();
 
 		String resultString;
 		if (testResult.isResult()) {
@@ -81,7 +90,7 @@ public class TestResultPage extends VerticalPageBase implements BeforeEnterObser
 		try {
 			setValue(FIELD_DECODED_URL, URLDecoder.decode(testResult.getRequestUrl(), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			return;
+			//NOP
 		}
 	}
 }

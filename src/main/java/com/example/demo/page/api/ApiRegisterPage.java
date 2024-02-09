@@ -52,7 +52,7 @@ public class ApiRegisterPage extends ApiCommonInputPage implements BeforeEnterOb
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
-		getCommonGuideDetails().forEach(i -> layout.add(i));
+		getCommonGuideDetails().forEach(layout::add);
 		return layout;
 	}
 }

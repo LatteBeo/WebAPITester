@@ -62,7 +62,7 @@ public class TopPage extends VerticalPageBase {
 		detailContentList.add(new String[] { "testAPI", "guide.top.testAPI" });
 		detailContentList.add(new String[] { "testSetList", "guide.top.testSetList" });
 		VerticalLayout layout = new VerticalLayout();
-		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		createGuideDetails(detailContentList).forEach(layout::add);
 		return layout;
 	}
 }

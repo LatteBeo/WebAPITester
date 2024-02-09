@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.DataNotFoundException;
 import com.example.demo.entity.Api;
 import com.example.demo.entity.Parameter;
 import com.example.demo.entity.TestSet;
@@ -21,6 +23,9 @@ import com.example.demo.repository.TestSetRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Rest api controller.
+ */
 @RestController
 public class TestController {
 	@Autowired
@@ -29,24 +34,24 @@ public class TestController {
 	ParameterRepository parameterRepository;
 	@Autowired
 	TestSetRepository testSetRepository;
+	private static final String API_DOWNLOAD_HEADER = "attachment; filename=\"" + "api.json" + "\"";
+	private static final String TESTSET_DOWNLOAD_HEADER = "attachment; filename=\"" + "testset.json" + "\"";
 
 	/**
 	 * Download all api list json file.
 	 * 
 	 * @return Json file
+	 * @throws JsonProcessingException 
 	 */
 	@GetMapping("/rest/api/download")
-	public ResponseEntity<?> downloadAPIListJson() {
+	public ResponseEntity<String> downloadAPIListJson() throws JsonProcessingException {
 		List<Api> apiList = new ArrayList<>();
-		apiRepository.findAll().forEach(i -> apiList.add(i));
-		try {
-			String jsonString = new ObjectMapper().writeValueAsString(apiList);
-			String headerValue = "attachment; filename=\"" + "api.json" + "\"";
+		apiRepository.findAll().forEach(apiList::add);
+
+			final String jsonString = new ObjectMapper().writeValueAsString(apiList);
 			return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-					.header(HttpHeaders.CONTENT_DISPOSITION, headerValue).body(jsonString);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
+					.header(HttpHeaders.CONTENT_DISPOSITION, API_DOWNLOAD_HEADER).body(jsonString);
+		
 	}
 
 	/**
@@ -54,22 +59,20 @@ public class TestController {
 	 * 
 	 * @param params Url request parameters(testsetid=id)
 	 * @return Json file
+	 * @throws DataNotFoundException 
+	 * @throws JsonProcessingException 
 	 */
 	@GetMapping("/rest/testset/download")
-	public ResponseEntity<?> downloadTestSetJson(@RequestParam Map<String, String> params) {
-		String testsetid = params.get("testsetid");
-		TestSet testSet = testSetRepository.findById(Integer.parseInt(testsetid)).get();
-		if (testSet == null) {
-			throw new RuntimeException();
+	public ResponseEntity<String> downloadTestSetJson(@RequestParam Map<String, String> params) throws DataNotFoundException, JsonProcessingException {
+		Optional<TestSet> optTestSet = testSetRepository.findById(Integer.parseInt(params.get("testsetid")));
+		if (optTestSet.isEmpty()) {
+			throw new DataNotFoundException();
 		}
-		try {
-			String jsonString = new ObjectMapper().writeValueAsString(testSet);
-			String headerValue = "attachment; filename=\"" + "testset.json" + "\"";
+
+			final String jsonString = new ObjectMapper().writeValueAsString(optTestSet.get());
 			return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-					.header(HttpHeaders.CONTENT_DISPOSITION, headerValue).body(jsonString);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
+					.header(HttpHeaders.CONTENT_DISPOSITION, TESTSET_DOWNLOAD_HEADER).body(jsonString);
+		
 	}
 
 	/**
@@ -79,11 +82,11 @@ public class TestController {
 	 * @return
 	 */
 	@GetMapping("/rest/api/register")
-	public ResponseEntity<?> registerAPI(@RequestParam Map<String, String> params) {
+	public ResponseEntity<String> registerAPI(@RequestParam Map<String, String> params) {
 		Api api = new Api();
 		api.setName(params.get("name"));
 		api = apiRepository.save(api);
-		
+
 		for (String paramName : params.get("param").split(",")) {
 			Parameter parameter = new Parameter();
 			parameter.setName(paramName);

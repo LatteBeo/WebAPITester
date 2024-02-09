@@ -31,13 +31,13 @@ abstract class ApiCommonInputPage extends VerticalPageBase {
 	private static final long serialVersionUID = 1L;
 	protected static int MAX_COL = 2;
 	@Autowired
-	ApiRepository apiRepository;
+	transient ApiRepository apiRepository;
 	@Autowired
-	ParameterRepository parameterRepository;
+	transient ParameterRepository parameterRepository;
 	Api api = new Api();
-	List<Parameter> parameterList = new ArrayList<>(20);
+	ArrayList<Parameter> parameterList = new ArrayList<>(20);
 	BeanValidationBinder<Api> apiBinder = new BeanValidationBinder<>(Api.class);
-	List<BeanValidationBinder<Parameter>> parameterBinderList = new ArrayList<>(20);
+	ArrayList<BeanValidationBinder<Parameter>> parameterBinderList = new ArrayList<>(20);
 
 	/**
 	 * Create form.

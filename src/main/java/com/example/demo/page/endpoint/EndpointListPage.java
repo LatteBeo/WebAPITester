@@ -28,7 +28,7 @@ public class EndpointListPage extends VerticalPageBase {
 	
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	EndpointRepository endpointRepository;
+	transient EndpointRepository endpointRepository;
 
 	@Override
 	protected Component createComponent() {
@@ -40,7 +40,7 @@ public class EndpointListPage extends VerticalPageBase {
 		grid.addColumn(createLinkComponent()).setHeader(getTranslation("endpointName"));
 		grid.addColumn(Endpoint::getUrl).setHeader(getTranslation("url"));
 		List<Endpoint> endpointList = new ArrayList<>();
-		endpointRepository.findAll().forEach(i -> endpointList.add(i));
+		endpointRepository.findAll().forEach(endpointList::add);
 		grid.setItems(endpointList);
 		layout.add(grid);
 		registerComponent(GRID, grid);
@@ -48,7 +48,7 @@ public class EndpointListPage extends VerticalPageBase {
 	}
 
 	private ComponentRenderer<RouterLink, Endpoint> createLinkComponent() {
-		return new ComponentRenderer<RouterLink, Endpoint>(RouterLink::new, (linkComponent, endPoint) -> {
+		return new ComponentRenderer<>(RouterLink::new, (linkComponent, endPoint) -> {
 			Map<String, String> map = new HashMap<>();
 			map.put(FIELD_ENDPOINT_ID, String.valueOf(endPoint.getId()));
 			linkComponent.setText(endPoint.getName());
@@ -63,7 +63,7 @@ public class EndpointListPage extends VerticalPageBase {
 		
 		
 		VerticalLayout layout = new VerticalLayout();
-		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		createGuideDetails(detailContentList).forEach(layout::add);
 		return layout;
 	}
 }

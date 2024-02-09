@@ -25,7 +25,7 @@ public class TestSetListPage extends VerticalPageBase {
 	
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	TestSetRepository testSetRepository;
+	transient TestSetRepository testSetRepository;
 
 	@Override
 	protected Component createComponent() {
@@ -42,13 +42,13 @@ public class TestSetListPage extends VerticalPageBase {
 		grid.addColumn(TestSet::getId).setHeader(getTranslation("testSetId"));
 		grid.addColumn(createLinkComponent()).setHeader(getTranslation("testSetName"));
 		List<TestSet> list = new ArrayList<>();
-		testSetRepository.findAll().forEach(i -> list.add(i));
+		testSetRepository.findAll().forEach(list::add);
 		layout.add(grid);
 		grid.setItems(list);
 		return layout;
 	}
 	private ComponentRenderer<RouterLink, TestSet> createLinkComponent() {
-		return new ComponentRenderer<RouterLink, TestSet>(RouterLink::new, (linkComponent, endPoint) -> {
+		return new ComponentRenderer<>(RouterLink::new, (linkComponent, endPoint) -> {
 			Map<String, String> map = new HashMap<>();
 			map.put("testsetid", String.valueOf(endPoint.getId()));
 			linkComponent.setText(String.valueOf(endPoint.getName()));

@@ -30,21 +30,21 @@ public class TestSetUpload extends SingleFileUploadPageBase {
 
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	TestSetRepository testSetRepository;
+	transient TestSetRepository testSetRepository;
 	@Autowired
-	TestSetDetailRepository testSetDetailRepository;
+	transient TestSetDetailRepository testSetDetailRepository;
 	@Autowired
-	TestRepository testRepository;
+	transient TestRepository testRepository;
 	@Autowired
-	TestParameterRepository testParameterRepository;
+	transient TestParameterRepository testParameterRepository;
 	@Autowired
-	TestAssertionRepository testAssertionRepository;
+	transient TestAssertionRepository testAssertionRepository;
 
 	@Override
 	protected Button createRegisterButton() {
 		Upload upload = (Upload) getComponent("file");
 
-		Button button = componentService.createButton(getTranslation("register"), i -> {
+		return componentService.createButton(getTranslation("register"), i -> {
 			File is = ((FileBuffer) upload.getReceiver()).getFileData().getFile();
 			try {
 				String jsonString = Files.lines(is.toPath())
@@ -52,12 +52,11 @@ public class TestSetUpload extends SingleFileUploadPageBase {
 				TestSet set = new ObjectMapper().readValue(jsonString, TestSet.class);
 				saveTestSet(set);
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				return;
 			}
 			this.getUI().ifPresent(ui -> ui.navigate(TestSetListPage.class));
 		});
 
-		return button;
 	}
 
 	private void saveTestSet(TestSet testSet) {

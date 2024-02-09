@@ -10,7 +10,7 @@ import static com.example.demo.page.PageConstant.*;
 /**
  * Single file upload page base class.
  */
-abstract public class SingleFileUploadPageBase extends VerticalPageBase {
+public abstract class SingleFileUploadPageBase extends VerticalPageBase {
 
 	private static final long serialVersionUID = 1L;
 	protected static final int MAX_COL = 2;

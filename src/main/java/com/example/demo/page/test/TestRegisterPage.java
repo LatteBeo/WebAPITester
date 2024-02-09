@@ -2,11 +2,13 @@ package com.example.demo.page.test;
 
 import static com.example.demo.page.PageConstant.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.example.demo.DataNotFoundException;
 import com.example.demo.entity.TestAssertion;
 import com.example.demo.entity.TestParameter;
 import com.example.demo.page.test.exec.ApiTestPageBase;
@@ -26,7 +28,7 @@ import com.vaadin.flow.router.Route;
 @Route("test/register")
 public class TestRegisterPage extends ApiTestPageBase implements BeforeEnterObserver {
 	@Autowired
-	TestAssertionRepository testAssertionRepository;
+	transient TestAssertionRepository testAssertionRepository;
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,13 +44,17 @@ public class TestRegisterPage extends ApiTestPageBase implements BeforeEnterObse
 			if (!writeBeansForRegisterOrUpdate()) {
 				return;
 			}
-			execRegister();
+			try {
+				execRegister();
+			} catch (DataNotFoundException | IOException e) {
+				return;
+			}
 			this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
 		}));
 		return layout;
 	}
 
-	private void execRegister() {
+	private void execRegister() throws DataNotFoundException, IOException {
 		test = testRepository.save(test);
 		testParameterRepository.saveAll(createRegisterOrUpdateTestParameterList(test));
 		testAssertionRepository.saveAll(createRegisterOrUpdateTestAssertionList(test));
@@ -73,13 +79,13 @@ public class TestRegisterPage extends ApiTestPageBase implements BeforeEnterObse
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
-		getCommonDetails().forEach(i -> layout.add(i));
+		getCommonDetails().forEach(layout::add);
 		
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "apiTestPageBase.01", "guide.apiTestSendPage.01" });
 		detailContentList.add(new String[] { "expectedValue", "guide.apiTestSendPage.expectedValue" });
 		
-		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		createGuideDetails(detailContentList).forEach(layout::add);
 		
 		
 		return layout;

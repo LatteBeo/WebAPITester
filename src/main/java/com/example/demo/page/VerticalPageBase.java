@@ -38,19 +38,19 @@ import jakarta.annotation.PostConstruct;
 /**
  * Base page for VerticalLayout.
  */
-abstract public class VerticalPageBase extends VerticalLayout {
+public abstract class VerticalPageBase extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	private static String MAIN_NORMAL_WIDTH = "90%";
 	private static String MAIN_SHORTEN_WIDTH = "70%";
 	private static String GUIDE_NORMAL_WIDTH = "30%";
 	private static String GUIDE_HIDDEN_WIDTH = "10%";
-	
+
 	@Autowired
-	protected ComponentService componentService;
+	protected transient ComponentService componentService;
 	/**
 	 * Stores created component.(Key:Field name, Value:Component)
 	 */
-	protected Map<String, Component> componentMap = new HashMap<>();
+	protected transient Map<String, Component> componentMap = new HashMap<>();
 
 	/**
 	 * Create component after executing constructor.
@@ -69,8 +69,6 @@ abstract public class VerticalPageBase extends VerticalLayout {
 
 		VerticalLayout guideLayout = new VerticalLayout();
 		guideLayout.setWidth(GUIDE_HIDDEN_WIDTH);
-		// guideLayout.addClassName(LumoUtility.Border.ALL);
-		// guideLayout.addClassName(LumoUtility.BorderColor.CONTRAST_20);
 
 		Component guideContents = createGuideComponent();
 
@@ -160,9 +158,7 @@ abstract public class VerticalPageBase extends VerticalLayout {
 	 */
 	protected Button createOpenDialogButton(String fieldName, String dialogComponentName, String text) {
 		Button button = new Button(text);
-		button.addClickListener(i -> {
-			((Dialog) getComponent(dialogComponentName)).open();
-		});
+		button.addClickListener(i -> ((Dialog) getComponent(dialogComponentName)).open());
 		registerComponent(fieldName, button);
 		return button;
 	}
@@ -201,20 +197,19 @@ abstract public class VerticalPageBase extends VerticalLayout {
 	 * 
 	 * @param fieldName Field name
 	 * @return Uploaded file
+	 * @throws IOException 
 	 */
-	protected UploadedFile getUploadedFile(String fieldName) {
+	protected UploadedFile getUploadedFile(String fieldName) throws IOException {
 		Upload uploadField = (Upload) getComponent(fieldName);
 		InputStream inputStream = ((FileBuffer) uploadField.getReceiver()).getInputStream();
 		ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
 		int length;
-		try {
+
 			while ((length = inputStream.read(buffer)) != -1) {
 				byteOutputStream.write(buffer, 0, length);
 			}
-		} catch (IOException e) {
-			throw new RuntimeException("ERROR at getUploadedFileBytes");
-		}
+		
 		UploadedFile file = new UploadedFile();
 		file.setFile(byteOutputStream.toByteArray());
 		file.setFileName(((FileBuffer) uploadField.getReceiver()).getFileName());
@@ -229,13 +224,12 @@ abstract public class VerticalPageBase extends VerticalLayout {
 	 * @return ByteArrayResource
 	 */
 	protected ByteArrayResource createFileByteArrayResource(byte[] bytes, String fileName) {
-		ByteArrayResource bs = new ByteArrayResource(bytes) {
+		return new ByteArrayResource(bytes) {
 			@Override
 			public String getFilename() {
 				return fileName;
 			}
 		};
-		return bs;
 	}
 
 	/**
@@ -258,10 +252,8 @@ abstract public class VerticalPageBase extends VerticalLayout {
 	 */
 	protected List<Details> createGuideDetails(List<String[]> contents) {
 		List<Details> result = new ArrayList<>();
-		contents.forEach(contentArray -> {
-			result.add(componentService.createGuideDetails(getTranslation(contentArray[0]),
-					getTranslation(contentArray[1])));
-		});
+		contents.forEach(contentArray -> result.add(
+				componentService.createGuideDetails(getTranslation(contentArray[0]), getTranslation(contentArray[1]))));
 		return result;
 
 	}

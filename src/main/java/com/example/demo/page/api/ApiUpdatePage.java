@@ -1,11 +1,17 @@
 package com.example.demo.page.api;
 
-import static com.example.demo.page.PageConstant.*;
+import static com.example.demo.page.PageConstant.BUTTON_UPDATE;
+import static com.example.demo.page.PageConstant.CONFIRM_DIALOG;
+import static com.example.demo.page.PageConstant.CONFIRM_DIALOG_BUTTON;
+import static com.example.demo.page.PageConstant.FIELD_API_ID;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import com.example.demo.entity.Api;
 import com.example.demo.entity.Parameter;
+import com.example.demo.page.PageConstant;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -39,18 +45,22 @@ public class ApiUpdatePage extends ApiCommonInputPage implements BeforeEnterObse
 			this.getUI().ifPresent(ui -> ui.navigate(ApiListPage.class));
 		}));
 		addComponent(layout, CONFIRM_DIALOG, componentService.createConfirmDialog(getTranslation("apiUpdatePage.01"),
-				getTranslation("delete"), getTranslation("cancel"), i -> {
+				getTranslation(PageConstant.DELETE), getTranslation("cancel"), i -> {
 					apiRepository.delete(api);
 					this.getUI().ifPresent(ui -> ui.navigate(ApiListPage.class));
 				}));
 		addComponent(layout, CONFIRM_DIALOG_BUTTON, componentService
-				.createOpenConfirmDialogButton(getTranslation("delete"), (ConfirmDialog) getComponent(CONFIRM_DIALOG)));
+				.createOpenConfirmDialogButton(getTranslation(PageConstant.DELETE), (ConfirmDialog) getComponent(CONFIRM_DIALOG)));
 		return layout;
 	}
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		api = apiRepository.findById(Integer.parseInt(event.getRouteParameters().get(FIELD_API_ID).orElse(""))).get();
+		Optional<Api> optApi = apiRepository.findById(Integer.parseInt(event.getRouteParameters().get(FIELD_API_ID).orElse("")));
+		if (optApi.isEmpty()) {
+			return;
+		}
+		api = optApi.get();
 		apiBinder.readBean(api);
 		List<Parameter> paramlist = parameterRepository.findByApi_id(api.getId());
 		parameterList.addAll(paramlist);
@@ -73,12 +83,12 @@ public class ApiUpdatePage extends ApiCommonInputPage implements BeforeEnterObse
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
-		getCommonGuideDetails().forEach(i -> layout.add(i));
+		getCommonGuideDetails().forEach(layout::add);
 		
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "update", "guide.apiUpdate.update" });
 		detailContentList.add(new String[] { "delete", "guide.apiUpdate.delete" });
-		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		createGuideDetails(detailContentList).forEach(layout::add);
 		return layout;
 	}
 }

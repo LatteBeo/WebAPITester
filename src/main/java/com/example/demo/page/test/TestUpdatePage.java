@@ -9,11 +9,16 @@ import static com.example.demo.page.PageConstant.GRID;
 import static com.example.demo.page.PageConstant.GRID2;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.example.demo.DataNotFoundException;
+import com.example.demo.entity.Test;
 import com.example.demo.entity.TestAssertion;
 import com.example.demo.entity.TestParameter;
 import com.example.demo.page.test.exec.ApiTestPageBase;
@@ -43,7 +48,7 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 	private static final long serialVersionUID = 1L;
 
 	@Autowired
-	TestAssertionRepository testAssertionRepository;
+	transient TestAssertionRepository testAssertionRepository;
 
 	@Override
 	protected Component createComponent() {
@@ -62,7 +67,11 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 			if (!writeBeansForRegisterOrUpdate()) {
 				return;
 			}
-			execUpdate();
+			try {
+				execUpdate();
+			} catch (DataNotFoundException | IOException e) {
+				return;
+			}
 			this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
 		}));
 
@@ -78,7 +87,7 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 		return layout;
 	}
 
-	private void execUpdate() {
+	private void execUpdate() throws DataNotFoundException, IOException {
 		test = testRepository.save(test);
 
 		List<TestParameter> parameterList = createRegisterOrUpdateTestParameterList(test);
@@ -92,7 +101,11 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		String testid = event.getRouteParameters().get(FIELD_TEST_ID).orElse("");
-		test = testRepository.findById(Integer.parseInt(testid)).get();
+		Optional<Test> optTest = testRepository.findById(Integer.parseInt(testid));
+		if (optTest.isEmpty()) {
+			return;
+		}
+		test = optTest.get();
 		testBinder.readBean(test);
 
 		List<TestParameter> parameterList = testParameterRepository.findByTest_id(test.getId());
@@ -123,7 +136,7 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 		Grid<TestAssertion> grid2 = (Grid<TestAssertion>) getComponent(GRID2);
 		grid2.setItems(testAssertionList);
 		
-		if (test.getTestSetDetail().size() != 0) {
+		if (!test.getTestSetDetail().isEmpty()) {
 			((Button)getComponent(CONFIRM_DIALOG_BUTTON)).setVisible(false);
 		}
 	}
@@ -139,7 +152,7 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 	}
 
 	protected ComponentRenderer<Button, TestParameter> createFileLinkRenderer() {
-		return new ComponentRenderer<Button, TestParameter>(Button::new, (link, testParameter) -> {
+		return new ComponentRenderer<>(Button::new, (link, testParameter) -> {
 			link.setText(getTranslation("download"));
 			byte[] fileBytes = testParameter.getFile();
 			if (fileBytes != null && fileBytes.length > 0) {
@@ -158,13 +171,13 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
-		getCommonDetails().forEach(i -> layout.add(i));
+		getCommonDetails().forEach(layout::add);
 		
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "apiTestPageBase.01", "guide.apiTestSendPage.01" });
 		detailContentList.add(new String[] { "expectedValue", "guide.apiTestSendPage.expectedValue" });
 		
-		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		createGuideDetails(detailContentList).forEach(layout::add);
 		
 		
 		return layout;

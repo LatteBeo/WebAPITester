@@ -1,6 +1,9 @@
 package com.example.demo.page;
 
 public class PageConstant {
+	private PageConstant() {
+		//NOP
+	}
 	public static final String FIELD_API_NAME = "apiname";
 	public static final String FIELD_API_ID = "apiid";
 	public static final String FIELD_RESULT_URL = "resulturl";
@@ -42,4 +45,5 @@ public class PageConstant {
 	public static final String TOPLAYOUT = "toplayout";
 	public static final String MAINLAYOUT = "mainlayout";
 	public static final String GUIDELAYOUT = "guidelayout";
+	public static final String DELETE = "delete";
 }

@@ -30,15 +30,15 @@ import com.vaadin.flow.router.Route;
 public class ApiUploadPage extends SingleFileUploadPageBase {
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	ApiRepository apiRepository;
+	transient ApiRepository apiRepository;
 	@Autowired
-	ParameterRepository parameterRepository;
+	transient ParameterRepository parameterRepository;
 
 	@Override
 	protected Button createRegisterButton() {
 		Upload upload = (Upload) getComponent("file");
 
-		Button button = componentService.createButton(getTranslation("register"), i -> {
+		return componentService.createButton(getTranslation("register"), i -> {
 			File is = ((FileBuffer) upload.getReceiver()).getFileData().getFile();
 			try {
 				String jsonString = Files.lines(is.toPath())
@@ -60,11 +60,10 @@ public class ApiUploadPage extends SingleFileUploadPageBase {
 					newApi.setParameter(newParameterList);
 				}
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				return;
 			}
 			this.getUI().ifPresent(ui -> ui.navigate(ApiListPage.class));
 		});
-		return button;
 	}
 	@Override
 	protected Component createGuideComponent() {

@@ -69,7 +69,7 @@ public class ComponentService {
 			} else {
 				textArea.setWidth(width, Unit.PIXELS);
 			}
-			
+
 		}
 		return textArea;
 	}
@@ -134,9 +134,7 @@ public class ComponentService {
 	 */
 	public Button createOpenConfirmDialogButton(String text, ConfirmDialog dialog) {
 		Button button = new Button(text);
-		button.addClickListener(i -> {
-			dialog.open();
-		});
+		button.addClickListener(i -> dialog.open());
 		return button;
 	}
 
@@ -181,14 +179,14 @@ public class ComponentService {
 	 */
 	public Button createOpenDialogButton(Dialog dialog, String text) {
 		Button button = new Button(text);
-		button.addClickListener(i -> {
-			dialog.open();
-		});
+		button.addClickListener(i -> dialog.open());
 		return button;
 	}
+
 	/**
 	 * Create Details instance for guide page.
-	 * @param title Detail title
+	 * 
+	 * @param title   Detail title
 	 * @param content Detail content
 	 * @return Details instance
 	 */
@@ -196,9 +194,9 @@ public class ComponentService {
 		TextArea textArea = createTextArea("", 999999);
 		textArea.setWidthFull();
 		textArea.setEnabled(false);
-		
+
 		textArea.getStyle().set("--lumo-disabled-text-color", "black");
-		
+
 		textArea.setValue(content);
 		Details details = new Details(title, textArea);
 		details.setWidthFull();

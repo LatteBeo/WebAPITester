@@ -27,7 +27,7 @@ abstract class EndpointCommonInputPage extends VerticalPageBase {
 	private static final long serialVersionUID = 1L;
 	
 	@Autowired
-	EndpointRepository endpointRepository;
+	transient EndpointRepository endpointRepository;
 	Endpoint endpoint = new Endpoint();
 	BeanValidationBinder<Endpoint> binder = new BeanValidationBinder<>(Endpoint.class);
 	

@@ -29,7 +29,7 @@ public class TestListPage extends VerticalPageBase {
 	
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	TestRepository testRepository;
+	transient TestRepository testRepository;
 
 	@Override
 	protected Component createComponent() {
@@ -43,14 +43,14 @@ public class TestListPage extends VerticalPageBase {
 		grid.addColumn(Test::getMethod).setHeader(getTranslation("method"));
 		grid.addColumn(Test::getMemo).setHeader(getTranslation("memo"));
 		List<Test> testList = new ArrayList<>();
-		testRepository.findAll().forEach(i -> testList.add(i));
+		testRepository.findAll().forEach(testList::add);
 		grid.setItems(testList);
 		layout.add(grid);
 		registerComponent(GRID, grid);
 		return layout;
 	}
 	private ComponentRenderer<RouterLink, Test> createLinkComponent() {
-		return new ComponentRenderer<RouterLink, Test>(RouterLink::new, (linkComponent, endPoint) -> {
+		return new ComponentRenderer<>(RouterLink::new, (linkComponent, endPoint) -> {
 			Map<String, String> map = new HashMap<>();
 			map.put(FIELD_TEST_ID, String.valueOf(endPoint.getId()));
 			linkComponent.setText(String.valueOf(endPoint.getId()));
@@ -62,7 +62,7 @@ public class TestListPage extends VerticalPageBase {
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "registerTest", "guide.testList.registerTest" });
 		VerticalLayout layout = new VerticalLayout();
-		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		createGuideDetails(detailContentList).forEach(layout::add);
 		return layout;
 	}
 

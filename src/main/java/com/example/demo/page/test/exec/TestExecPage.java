@@ -6,9 +6,11 @@ import static com.example.demo.page.PageConstant.TEST_NAME_DIALOG_BUTTON;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,6 +25,7 @@ import org.w3c.dom.NodeList;
 
 import com.example.demo.ApiCallerService;
 import com.example.demo.ApiCallerService.RequestResult;
+import com.example.demo.DataNotFoundException;
 import com.example.demo.entity.Test;
 import com.example.demo.entity.TestAssertResult;
 import com.example.demo.entity.TestAssertion;
@@ -50,17 +53,17 @@ import com.vaadin.flow.router.Route;
 
 public class TestExecPage extends VerticalPageBase {
 	@Autowired
-	TestRepository testRepository;
+	transient TestRepository testRepository;
 	@Autowired
-	ApiCallerService apiCallerService;
+	transient ApiCallerService apiCallerService;
 	@Autowired
-	TestParameterRepository testParameterRepository;
+	transient TestParameterRepository testParameterRepository;
 	@Autowired
-	TestAssertionRepository testAssertionRepository;
+	transient TestAssertionRepository testAssertionRepository;
 	@Autowired
-	TestResultRepository testResultRepository;
+	transient TestResultRepository testResultRepository;
 	@Autowired
-	TestAssertResultRepository testAssertResultRepository;
+	transient TestAssertResultRepository testAssertResultRepository;
 	Test test = new Test();
 
 	private static final long serialVersionUID = 1L;
@@ -82,14 +85,22 @@ public class TestExecPage extends VerticalPageBase {
 			} catch (ValidationException e) {
 				return;
 			}
-			exec();
+			try {
+				exec();
+			} catch (DataNotFoundException e) {
+				return;
+			}
 			this.getUI().ifPresent(ui -> ui.navigate(TestResultListPage.class));
 		}));
 		return layout;
 	}
 
-	private void exec() {
-		test = testRepository.findById(test.getId()).get();
+	private void exec() throws DataNotFoundException {
+		Optional<Test> optTest = testRepository.findById(test.getId());
+		if (optTest.isEmpty()) {
+			throw new DataNotFoundException();
+		}
+		test = optTest.get();
 		RequestResult result;
 		List<TestParameter> parameterList = testParameterRepository.findByTest_id(test.getId());
 		if ("POST".equals(test.getMethod())) {
@@ -139,7 +150,10 @@ public class TestExecPage extends VerticalPageBase {
 		assertResult.setExpectedValue(assertion.getExpectedValue());
 		assertResult.setTestResult(testResult);
 		try {
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(new ReaderInputStream(new StringReader(requestResult.responseString())));
 			XPath xPath = XPathFactory.newInstance().newXPath();
 			NodeList nodelist = (NodeList) xPath.compile(assertion.getXpath()).evaluate(doc, XPathConstants.NODESET);
@@ -149,7 +163,7 @@ public class TestExecPage extends VerticalPageBase {
 				assertResult.setResult(value.equals(assertion.getExpectedValue()));
 			}
 		} catch (Exception e) {
-			assertResult.setActualValue(e.getStackTrace().toString());
+			assertResult.setActualValue(Arrays.toString(e.getStackTrace()));
 		}
 		return assertResult;
 	}
@@ -159,13 +173,13 @@ public class TestExecPage extends VerticalPageBase {
 		grid.addColumn(createTestNameButtonComponent()).setHeader(getTranslation("testName"));
 		grid.setAllRowsVisible(true);
 		List<Test> apiList = new ArrayList<>();
-		testRepository.findAll().forEach(i -> apiList.add(i));
+		testRepository.findAll().forEach(apiList::add);
 		grid.setItems(apiList);
 		return componentService.createSelectDialog(grid);
 	}
 
 	protected ComponentRenderer<Button, Test> createTestNameButtonComponent() {
-		return new ComponentRenderer<Button, Test>(Button::new, (button, api) -> {
+		return new ComponentRenderer<>(Button::new, (button, api) -> {
 			button.setText(api.getMemo());
 			button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 			button.addClickListener(i -> {

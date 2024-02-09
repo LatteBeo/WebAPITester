@@ -25,10 +25,8 @@ public class ApiCallerService {
 	 */
 	public RequestResult get(String endpointUrl, String apiName, Map<String, String> urlParam) {
 		LocalDateTime execDate = null;
-		WatHttpClientInterceptor interceptor = new WatHttpClientInterceptor();
-		RequestResult result = null;
+		final WatHttpClientInterceptor interceptor = new WatHttpClientInterceptor();
 		try {
-			RestClient client = RestClient.builder().requestInterceptor(interceptor).build();
 			StringBuilder urlBuilder = new StringBuilder();
 			urlBuilder.append(endpointUrl).append("/").append(apiName);
 			if (!urlParam.isEmpty()) {
@@ -37,16 +35,16 @@ public class ApiCallerService {
 					if (!urlBuilder.toString().endsWith("&")) {
 						urlBuilder.append("&");
 					}
-					urlBuilder.append(key).append("=").append("{" + key + "}");
+					urlBuilder.append(key).append("=").append("{").append(key).append("}");
 				});
 			}
+			RestClient client = RestClient.builder().requestInterceptor(interceptor).build();
 			execDate = LocalDateTime.now();
 			ResponseSpec response = client.get().uri(urlBuilder.toString(), urlParam).retrieve();
-			result = new RequestResult(interceptor.getRequestUrl(), response.body(String.class), true, execDate);
+			return new RequestResult(interceptor.getRequestUrl(), response.body(String.class), true, execDate);
 		} catch (Exception e) {
-			result = new RequestResult(interceptor.getRequestUrl(), e.getMessage(), false, execDate);
+			return new RequestResult(interceptor.getRequestUrl(), e.getMessage(), false, execDate);
 		}
-		return result;
 	}
 
 	/**
@@ -60,23 +58,22 @@ public class ApiCallerService {
 	 */
 	public RequestResult post(String endpointUrl, String apiName, Map<String, Object> param) {
 		LocalDateTime execDate = null;
-		WatHttpClientInterceptor interceptor = new WatHttpClientInterceptor();
-		RequestResult result = null;
+		final WatHttpClientInterceptor interceptor = new WatHttpClientInterceptor();
 		try {
-			RestClient client = RestClient.builder().requestInterceptor(interceptor).build();
 			MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-			param.forEach((key, value) -> parts.add(key, value));
+			param.forEach(parts::add);
 			StringBuilder urlBuilder = new StringBuilder();
 			urlBuilder.append(endpointUrl).append("/").append(apiName);
+			RestClient client = RestClient.builder().requestInterceptor(interceptor).build();
 			execDate = LocalDateTime.now();
 			ResponseSpec response = client.post().uri(urlBuilder.toString()).contentType(MediaType.MULTIPART_FORM_DATA)
 					.body(parts).retrieve();
-			result = new RequestResult(interceptor.getRequestUrl(), response.body(String.class), true, execDate);
+			return new RequestResult(interceptor.getRequestUrl(), response.body(String.class), true, execDate);
 		} catch (Exception e) {
-			result = new RequestResult(interceptor.getRequestUrl(), e.getMessage(), false, execDate);
+			return new RequestResult(interceptor.getRequestUrl(), e.getMessage(), false, execDate);
 		}
-		return result;
 	}
+
 	/**
 	 * Stores request result information.
 	 */

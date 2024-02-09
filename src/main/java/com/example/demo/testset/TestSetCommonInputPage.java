@@ -35,16 +35,16 @@ import lombok.Setter;
 public abstract class TestSetCommonInputPage extends VerticalPageBase {
 	private static final long serialVersionUID = 1L;
 	TestSet testSet = new TestSet();
-	List<TestSetDetail> testSetDetailList = new ArrayList<>();
+	ArrayList<TestSetDetail> testSetDetailList = new ArrayList<>();
 	@Autowired
-	TestRepository testRepository;
+	transient TestRepository testRepository;
 	@Autowired
-	TestSetRepository testSetRepository;
+	transient TestSetRepository testSetRepository;
 	@Autowired
-	TestSetDetailRepository testSetDetailRepository;
+	transient TestSetDetailRepository testSetDetailRepository;
 	BeanValidationBinder<TestSet> testSetBinder = new BeanValidationBinder<>(TestSet.class);
 
-	List<BeanValidationBinder<TestSetDetail>> testSetDetailBinderList = new ArrayList<>();
+	ArrayList<BeanValidationBinder<TestSetDetail>> testSetDetailBinderList = new ArrayList<>();
 
 	protected FormLayout createForm() {
 		FormLayout layout = new FormLayout();
@@ -63,7 +63,7 @@ public abstract class TestSetCommonInputPage extends VerticalPageBase {
 	}
 
 	protected ComponentRenderer<TextField, TestSetDetail> createTestParamFieldRenderer() {
-		return new ComponentRenderer<TextField, TestSetDetail>(TextField::new, (component, parameter) -> {
+		return new ComponentRenderer<>(TextField::new, (component, parameter) -> {
 			registerComponent(FIELD_TEST_ID + parameter.getFieldIndex(), component);
 			BeanValidationBinder<TestSetDetail> binder = new BeanValidationBinder<>(TestSetDetail.class);
 			binder.bind((TextField) getComponent(FIELD_TEST_ID + parameter.getFieldIndex()), "testid");
@@ -74,14 +74,14 @@ public abstract class TestSetCommonInputPage extends VerticalPageBase {
 	}
 
 	protected ComponentRenderer<TextField, TestSetDetail> createTestParamFieldRenderer2() {
-		return new ComponentRenderer<TextField, TestSetDetail>(TextField::new, (component, parameter) -> {
+		return new ComponentRenderer<>(TextField::new, (component, parameter) -> {
 			registerComponent(FIELD_TEST_NAME + parameter.getFieldIndex(), component);
 			component.setEnabled(false);
 		});
 	}
 
 	protected ComponentRenderer<Button, TestSetDetail> createTestParamFieldRenderer3() {
-		return new ComponentRenderer<Button, TestSetDetail>(Button::new, (component, parameter) -> {
+		return new ComponentRenderer<>(Button::new, (component, parameter) -> {
 			component.setText(getTranslation("selectTest"));
 			component.addClickListener(i -> {
 				TestSelectDialog dialog = (TestSelectDialog) getComponent("testNameDialog");
@@ -99,7 +99,7 @@ public abstract class TestSetCommonInputPage extends VerticalPageBase {
 		grid.addColumn(createTestNameButtonComponent()).setHeader(getTranslation("testName"));
 		grid.setAllRowsVisible(true);
 		List<Test> apiList = new ArrayList<>();
-		testRepository.findAll().forEach(i -> apiList.add(i));
+		testRepository.findAll().forEach(apiList::add);
 		grid.setItems(apiList);
 		layout.add(grid);
 		dialog.add(layout);
@@ -107,7 +107,7 @@ public abstract class TestSetCommonInputPage extends VerticalPageBase {
 	}
 
 	protected ComponentRenderer<Button, Test> createTestNameButtonComponent() {
-		return new ComponentRenderer<Button, Test>(Button::new, (button, api) -> {
+		return new ComponentRenderer<>(Button::new, (button, api) -> {
 			button.setText(api.getMemo());
 			button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 			button.addClickListener(i -> {

@@ -29,7 +29,7 @@ import com.vaadin.flow.router.RouterLink;
 @Route(value = "api/list")
 public class ApiListPage extends VerticalPageBase {
 	@Autowired
-	ApiRepository apiRepository;
+	transient ApiRepository apiRepository;
 
 	private static final long serialVersionUID = 1L;
 
@@ -55,14 +55,14 @@ public class ApiListPage extends VerticalPageBase {
 		grid.addColumn(createLinkComponent()).setHeader(getTranslation("apiName"));
 
 		List<Api> apiList = new ArrayList<>();
-		apiRepository.findAll().forEach(i -> apiList.add(i));
+		apiRepository.findAll().forEach(apiList::add);
 		grid.setItems(apiList);
 		registerComponent(GRID, grid);
 		return grid;
 	}
 
 	private ComponentRenderer<RouterLink, Api> createLinkComponent() {
-		return new ComponentRenderer<RouterLink, Api>(RouterLink::new, (link, api) -> {
+		return new ComponentRenderer<>(RouterLink::new, (link, api) -> {
 			Map<String, String> map = new HashMap<>();
 			map.put(FIELD_API_ID, String.valueOf(api.getId()));
 			link.setText(api.getName());
@@ -77,7 +77,7 @@ public class ApiListPage extends VerticalPageBase {
 		detailContentList.add(new String[] { "download", "guide.apiList.download" });
 		detailContentList.add(new String[] { "upload", "guide.apiList.upload" });
 		VerticalLayout layout = new VerticalLayout();
-		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		createGuideDetails(detailContentList).forEach(layout::add);
 		return layout;
 	}
 }

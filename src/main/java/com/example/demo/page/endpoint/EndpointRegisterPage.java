@@ -32,7 +32,7 @@ public class EndpointRegisterPage extends EndpointCommonInputPage {
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
-		getCommonDetails().forEach(i -> layout.add(i));
+		getCommonDetails().forEach(layout::add);
 		return layout;
 	}
 }

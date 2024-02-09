@@ -7,7 +7,10 @@ import static com.example.demo.page.PageConstant.FIELD_ENDPOINT_ID;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import com.example.demo.entity.Endpoint;
+import com.example.demo.page.PageConstant;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -41,11 +44,11 @@ public class EndpointUpdatePage extends EndpointCommonInputPage implements Befor
 			this.getUI().ifPresent(ui -> ui.navigate(EndpointListPage.class));
 		}));
 		addComponent(layout, CONFIRM_DIALOG,
-				componentService.createConfirmDialog(getTranslation("endpointUpdatePage.01"), getTranslation("delete"), getTranslation("cancel"), i -> {
+				componentService.createConfirmDialog(getTranslation("endpointUpdatePage.01"), getTranslation(PageConstant.DELETE), getTranslation("cancel"), i -> {
 					endpointRepository.delete(endpoint);
 					this.getUI().ifPresent(ui -> ui.navigate(EndpointListPage.class));
 				}));
-		addComponent(layout, CONFIRM_DIALOG_BUTTON, componentService.createOpenConfirmDialogButton(getTranslation("delete"),
+		addComponent(layout, CONFIRM_DIALOG_BUTTON, componentService.createOpenConfirmDialogButton(getTranslation(PageConstant.DELETE),
 				(ConfirmDialog) getComponent(CONFIRM_DIALOG)));
 		return layout;
 	}
@@ -53,18 +56,22 @@ public class EndpointUpdatePage extends EndpointCommonInputPage implements Befor
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		String id = event.getRouteParameters().get(FIELD_ENDPOINT_ID).orElse("");
-		endpoint = endpointRepository.findById(Integer.parseInt(id)).get();
+		Optional<Endpoint> optEndpoint = endpointRepository.findById(Integer.parseInt(id));
+		if (optEndpoint.isEmpty()) {
+			return;
+		}
+		endpoint = optEndpoint.get();
 		binder.readBean(endpoint);
 	}
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
-		getCommonDetails().forEach(i -> layout.add(i));
+		getCommonDetails().forEach(layout::add);
 		
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "update", "guide.endpointUpdate.update" });
 		detailContentList.add(new String[] { "delete", "guide.endpointUpdate.delete" });
-		createGuideDetails(detailContentList).forEach(i -> layout.add(i));
+		createGuideDetails(detailContentList).forEach(layout::add);
 		
 		return layout;
 	}

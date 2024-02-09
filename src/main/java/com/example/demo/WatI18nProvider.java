@@ -37,13 +37,13 @@ public class WatI18nProvider extends DefaultI18NProvider {
 		}
 
 		final ResourceBundle bundle;
-		String baseName;
+		final String baseName;
 
 		if (key.startsWith("guide")) {
 			// If the key is for guide page, change resource bundle.
 			baseName = BUNDLE_FOLDER + "." + "guide";
 		} else {
-			// Default rsource bundle.
+			// Default resource bundle.
 			baseName = BUNDLE_PREFIX;
 		}
 		bundle = ResourceBundle.getBundle(baseName, locale, Thread.currentThread().getContextClassLoader());

@@ -7,11 +7,10 @@ import static com.example.demo.page.PageConstant.FIELD_TEST_SET_ID;
 import static com.example.demo.page.PageConstant.GRID;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
+import com.example.demo.entity.TestSet;
 import com.example.demo.entity.TestSetDetail;
-import com.example.demo.repository.TestRepository;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -28,9 +27,6 @@ import com.vaadin.flow.router.Route;
 public class TestSetUpdatePage extends TestSetCommonInputPage implements BeforeEnterObserver {
 
 	private static final long serialVersionUID = 1L;
-
-	@Autowired
-	TestRepository testRepository;
 
 	@Override
 	protected Component createComponent() {
@@ -69,7 +65,11 @@ public class TestSetUpdatePage extends TestSetCommonInputPage implements BeforeE
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		String testsetid = event.getRouteParameters().get("testsetid").orElse("");
-		testSet = testSetRepository.findById(Integer.parseInt(testsetid)).get();
+		Optional<TestSet> optTestSet = testSetRepository.findById(Integer.parseInt(testsetid));
+		if (optTestSet.isEmpty()) {
+			return;
+		}
+		testSet = optTestSet.get();
 		testSetBinder.readBean(testSet);
 
 		List<TestSetDetail> detailList = testSet.getTestList();

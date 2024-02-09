@@ -10,12 +10,14 @@ import static com.example.demo.page.PageConstant.PREFIX_PARAM;
 import static com.example.demo.page.PageConstant.SUFFIX_UPLOAD;
 import static com.example.demo.page.PageConstant.TABSHEET;
 
+import java.awt.AWTException;
+import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,21 +64,31 @@ public class ApiTestSendPage extends ApiTestPageBase implements BeforeEnterObser
 		setColSpan(layout, GRID, max_col);
 
 		Button submitButton = componentService.createButton(getTranslation("submitRequest"), i -> {
-			try {
-				testBinder.writeBean(test);
-				for (int x = 0; x < 20; x++) {
+	
+				try {
+					testBinder.writeBean(test);
+					for (int x = 0; x < 20; x++) {
 					testParameterBinderList.get(x).writeBean(testParameterList.get(x));
 				}
-			} catch (ValidationException e) {
-				return;
-			}
-			callAPI();
+				callAPI();
+				} catch (ValidationException | IOException e) {
+					return;
+				}
+				
+
+			
 		});
 		addComponent(layout, BUTTON_SUBMIT, submitButton);
 		setColSpan(layout, BUTTON_SUBMIT, max_col / 2);
 
 		addComponent(layout, BUTTON_SCREENSHOT,
-				componentService.createButton(getTranslation("screenshot"), i -> downloadScreenshot()));
+				componentService.createButton(getTranslation("screenshot"), i -> {
+					try {
+						downloadScreenshot();
+					} catch (HeadlessException | IOException | AWTException e) {
+						return;
+					}
+				}));
 		setColSpan(layout, BUTTON_SCREENSHOT, max_col / 2);
 
 		TextArea resultUrlArea = createDisabledTextArea(getTranslation("resultUrl"), 999999);
@@ -105,39 +117,48 @@ public class ApiTestSendPage extends ApiTestPageBase implements BeforeEnterObser
 		return textArea;
 	}
 
-	private void callAPI() {
+	private RequestResult callAPIWithGet() {
 		RequestResult result;
-		if ("POST".equals(test.getMethod())) {
-			Map<String, Object> requestParams = new HashMap<>();
-			for (int i = 1; i < 21; i++) {
-				TestParameter parameter = testParameterList.get(i - 1);
-				String paramName = parameter.getName();
-				if (paramName != null && !paramName.isBlank()) {
-					UploadedFile uploadedFile = getUploadedFile(PREFIX_PARAM + String.valueOf(i) + SUFFIX_UPLOAD);
-					byte[] fileBytes = uploadedFile.getFile();
-					if (fileBytes != null && fileBytes.length > 0) {
-						ByteArrayResource byteStream = createFileByteArrayResource(fileBytes,
-								uploadedFile.getFileName());
-						requestParams.put(parameter.getName(), byteStream);
-					} else {
-						requestParams.put(parameter.getName(), parameter.getValue());
-					}
+		Map<String, String> requestParams = new HashMap<>();
+		testParameterList.stream().filter(i -> i.getName() != null && !i.getName().isBlank())
+				.forEach(i -> requestParams.put(i.getName(), i.getValue()));
+		result = apiCallerService.get(test.getEndpointurl(), test.getApiname(), requestParams);
+		return result;
+
+	}
+
+	private RequestResult callAPIWithPost() throws IOException {
+		RequestResult result;
+		Map<String, Object> requestParams = new HashMap<>();
+		for (int i = 1; i < 21; i++) {
+			TestParameter parameter = testParameterList.get(i - 1);
+			String paramName = parameter.getName();
+			if (paramName != null && !paramName.isBlank()) {
+				UploadedFile uploadedFile = getUploadedFile(PREFIX_PARAM + String.valueOf(i) + SUFFIX_UPLOAD);
+				byte[] fileBytes = uploadedFile.getFile();
+				if (fileBytes != null && fileBytes.length > 0) {
+					ByteArrayResource byteStream = createFileByteArrayResource(fileBytes, uploadedFile.getFileName());
+					requestParams.put(parameter.getName(), byteStream);
+				} else {
+					requestParams.put(parameter.getName(), parameter.getValue());
 				}
 			}
-			result = apiCallerService.post(test.getEndpointurl(), test.getApiname(), requestParams);
+		}
+		result = apiCallerService.post(test.getEndpointurl(), test.getApiname(), requestParams);
+		return result;
+
+	}
+
+	private void callAPI() throws IOException {
+		RequestResult result;
+		if ("POST".equals(test.getMethod())) {
+			result = callAPIWithPost();
 		} else {
-			Map<String, String> requestParams = new HashMap<>();
-			testParameterList.stream().filter(i -> i.getName() != null && !i.getName().isBlank())
-					.forEach(i -> requestParams.put(i.getName(), i.getValue()));
-			result = apiCallerService.get(test.getEndpointurl(), test.getApiname(), requestParams);
+			result = callAPIWithGet();
 		}
 		setValue(FIELD_RESULT_URL, result.requestUrl());
 		setValue(FIELD_RESULT, result.responseString());
-		try {
 			setValue(FIELD_DECODED_URL, URLDecoder.decode(result.requestUrl(), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			return;
-		}
 	}
 
 	@Override
@@ -156,38 +177,28 @@ public class ApiTestSendPage extends ApiTestPageBase implements BeforeEnterObser
 		initTestParameterListAndGrid();
 	}
 
-	private void downloadScreenshot() {
-		try {
-			Path tmpFile = Files.createTempFile("tmp", "png");
-			BufferedImage screenShot = new Robot()
-					.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-			ImageIO.write(screenShot, "png", tmpFile.toFile());
-			try {
-				FileInputStream fis = new FileInputStream(tmpFile.toFile());
-				final StreamRegistration registration = VaadinSession.getCurrent().getResourceRegistry()
-						.registerResource(new StreamResource("download.png", () -> fis));
-				UI.getCurrent().getPage().open(registration.getResourceUri().toString());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+	private void downloadScreenshot() throws IOException, HeadlessException, AWTException {
+		Path tmpFile = Files.createTempFile("tmp", "png");
+		BufferedImage screenShot = new Robot()
+				.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+		ImageIO.write(screenShot, "png", tmpFile.toFile());
+		try (FileInputStream fis = new FileInputStream(tmpFile.toFile());) {
+			final StreamRegistration registration = VaadinSession.getCurrent().getResourceRegistry()
+					.registerResource(new StreamResource("download.png", () -> fis));
+			UI.getCurrent().getPage().open(registration.getResourceUri().toString());
 		}
 	}
-	
+
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
-		getCommonDetails().forEach(i -> layout.add(i));
-		
+		getCommonDetails().forEach(layout::add);
+
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "apiTestPageBase.01", "guide.apiTestSendPage.01" });
 		detailContentList.add(new String[] { "expectedValue", "guide.apiTestSendPage.expectedValue" });
-		
-		
-		
+
 		return layout;
 	}
-	
-	
+
 }

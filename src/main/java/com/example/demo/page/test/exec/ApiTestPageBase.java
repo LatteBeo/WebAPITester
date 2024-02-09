@@ -14,12 +14,15 @@ import static com.example.demo.page.PageConstant.GRID2;
 import static com.example.demo.page.PageConstant.PREFIX_PARAM;
 import static com.example.demo.page.PageConstant.SUFFIX_UPLOAD;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.ApiCallerService;
+import com.example.demo.DataNotFoundException;
 import com.example.demo.entity.Api;
 import com.example.demo.entity.Endpoint;
 import com.example.demo.entity.Parameter;
@@ -33,7 +36,6 @@ import com.example.demo.repository.ApiRepository;
 import com.example.demo.repository.EndpointRepository;
 import com.example.demo.repository.TestParameterRepository;
 import com.example.demo.repository.TestRepository;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -43,7 +45,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -53,26 +54,27 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
-abstract public class ApiTestPageBase extends VerticalPageBase {
+public abstract class ApiTestPageBase extends VerticalPageBase {
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	protected ApiRepository apiRepository;
+	protected transient ApiRepository apiRepository;
 	@Autowired
-	protected EndpointRepository endpointRepository;
+	protected transient EndpointRepository endpointRepository;
 	@Autowired
-	protected TestRepository testRepository;
+	protected transient TestRepository testRepository;
 	@Autowired
-	protected TestParameterRepository testParameterRepository;
+	protected transient TestParameterRepository testParameterRepository;
 	@Autowired
-	protected ApiCallerService apiCallerService;
+	protected transient ApiCallerService apiCallerService;
 	protected BeanValidationBinder<Test> testBinder = new BeanValidationBinder<>(Test.class);
-	protected List<BeanValidationBinder<TestParameter>> testParameterBinderList = new ArrayList<>(20);
-	protected List<BeanValidationBinder<TestAssertion>> testAssertionBinderList = new ArrayList<>(20);
+	protected ArrayList<BeanValidationBinder<TestParameter>> testParameterBinderList = new ArrayList<>(20);
+	protected ArrayList<BeanValidationBinder<TestAssertion>> testAssertionBinderList = new ArrayList<>(20);
 	protected Test test = new Test();
-	protected List<TestParameter> testParameterList = new ArrayList<>(20);
-	protected List<TestAssertion> testAssertionList = new ArrayList<>(20);
+	protected ArrayList<TestParameter> testParameterList = new ArrayList<>(20);
+	protected ArrayList<TestAssertion> testAssertionList = new ArrayList<>(20);
 
 	protected int max_col = 4;
+	private static final String API_NAME = "apiName";
 
 	protected FormLayout createForm() {
 		FormLayout layout = new FormLayout();
@@ -89,10 +91,8 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 		setColSpan(layout, ENDPOINT_URL_DIALOG_BUTTON, max_col / 2);
 
 		// API Name
-		TextField apiNameField = componentService.createTextField(getTranslation("apiName"), 300, 300);
-		apiNameField.addValueChangeListener(i -> {
-			changeSelectItem(i.getSource());
-		});
+		TextField apiNameField = componentService.createTextField(getTranslation(API_NAME), 300, 300);
+		apiNameField.addValueChangeListener(i -> changeSelectItem(i.getSource()));
 		addComponent(layout, FIELD_API_NAME, apiNameField);
 		setColSpan(layout, FIELD_API_NAME, max_col / 2);
 
@@ -104,12 +104,12 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 
 		// Method
 		addComponent(layout, FIELD_METHOD,
-				componentService.createSelect(getTranslation("method"), List.of("GET", "POST"), "GET"));
+				componentService.createSelect(getTranslation(FIELD_METHOD), List.of("GET", "POST"), "GET"));
 		setColSpan(layout, FIELD_METHOD, max_col);
 
 		testBinder.bind((TextField) getComponent(FIELD_ENDPOINT_URL), "endpointurl");
 		testBinder.bind((TextField) getComponent(FIELD_API_NAME), "apiname");
-		testBinder.bind((Select<String>) getComponent(FIELD_METHOD), "method");
+		testBinder.bind((Select<String>) getComponent(FIELD_METHOD), FIELD_METHOD);
 
 		layout.add(createTestParameterGrid());
 		setColSpan(layout, GRID, max_col / 2);
@@ -128,10 +128,10 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 
 	protected Dialog createApiSelectDialog() {
 		Grid<Api> grid = new Grid<>(Api.class, false);
-		grid.addColumn(createApiNameButtonComponent()).setHeader(getTranslation("apiName"));
+		grid.addColumn(createApiNameButtonComponent()).setHeader(getTranslation(API_NAME));
 		grid.setAllRowsVisible(true);
 		List<Api> apiList = new ArrayList<>();
-		apiRepository.findAll().forEach(i -> apiList.add(i));
+		apiRepository.findAll().forEach(apiList::add);
 		grid.setItems(apiList);
 		return componentService.createSelectDialog(grid);
 	}
@@ -141,13 +141,13 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 		grid.addColumn(createEndpointNameLinkComponent()).setHeader(getTranslation("endpointName"));
 		grid.setAllRowsVisible(true);
 		List<Endpoint> endpointList = new ArrayList<>();
-		endpointRepository.findAll().forEach(i -> endpointList.add(i));
+		endpointRepository.findAll().forEach(endpointList::add);
 		grid.setItems(endpointList);
 		return componentService.createSelectDialog(grid);
 	}
 
 	protected ComponentRenderer<Button, Api> createApiNameButtonComponent() {
-		return new ComponentRenderer<Button, Api>(Button::new, (button, api) -> {
+		return new ComponentRenderer<>(Button::new, (button, api) -> {
 			button.setText(api.getName());
 			button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 			button.addClickListener(i -> {
@@ -158,7 +158,7 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 	}
 
 	protected ComponentRenderer<Button, Endpoint> createEndpointNameLinkComponent() {
-		return new ComponentRenderer<Button, Endpoint>(Button::new, (button, endpoint) -> {
+		return new ComponentRenderer<>(Button::new, (button, endpoint) -> {
 			button.setText(endpoint.getName());
 			button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 			button.addClickListener(i -> {
@@ -169,8 +169,8 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 	}
 
 	protected ComponentRenderer<TestParamField, TestParameter> createTestParamFieldRenderer() {
-		return new ComponentRenderer<TestParamField, TestParameter>(TestParamField::new, (component, parameter) -> {
-			component.setValues(parameter);
+		return new ComponentRenderer<>(TestParamField::new, (component, parameter) -> {
+			component.setPresentationValue(parameter);
 			String fieldPrefix = PREFIX_PARAM + parameter.getFieldIndex();
 			ComboBox<String> nameField = component.getNameField();
 			TextField valueField = component.getValueField();
@@ -204,7 +204,7 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 	}
 
 	protected ComponentRenderer<Upload, TestParameter> createUploadRenderer() {
-		return new ComponentRenderer<Upload, TestParameter>(Upload::new, (component, parameter) -> {
+		return new ComponentRenderer<>(Upload::new, (component, parameter) -> {
 			component.setReceiver(new FileBuffer());
 			component.setDropAllowed(false);
 			componentMap.put(PREFIX_PARAM + String.valueOf(parameter.getFieldIndex()) + SUFFIX_UPLOAD, component);
@@ -213,7 +213,7 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 	}
 
 	protected ComponentRenderer<TextField, TestAssertion> createXPathFieldRenderer() {
-		return new ComponentRenderer<TextField, TestAssertion>(TextField::new, (component, assertion) -> {
+		return new ComponentRenderer<>(TextField::new, (component, assertion) -> {
 			component.setWidth(300, Unit.PIXELS);
 			component.setMaxLength(2000);
 			BeanValidationBinder<TestAssertion> binder = testAssertionBinderList.get(assertion.getFieldIndex() - 1);
@@ -228,7 +228,7 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 	}
 
 	protected ComponentRenderer<TextField, TestAssertion> createExpectedValueFieldRenderer() {
-		return new ComponentRenderer<TextField, TestAssertion>(TextField::new, (component, assertion) -> {
+		return new ComponentRenderer<>(TextField::new, (component, assertion) -> {
 			component.setWidth(300, Unit.PIXELS);
 			component.setMaxLength(2000);
 			registerComponent(FIELD_ASSERTION_EXPECTED_VALUE + assertion.getFieldIndex(), component);
@@ -260,7 +260,7 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 		return grid;
 	}
 
-	protected List<TestParameter> createRegisterOrUpdateTestParameterList(Test test) {
+	protected List<TestParameter> createRegisterOrUpdateTestParameterList(Test test) throws DataNotFoundException, IOException {
 		List<TestParameter> parameterList = new ArrayList<>();
 		for (int j = 1; j < 21; j++) {
 			String fieldName = PREFIX_PARAM + String.valueOf(j);
@@ -274,7 +274,11 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 					parameter.setFileName(ds.getFileName());
 				} else if (parameter.getId() > 0) {
 					// Use already registered file
-					TestParameter formerRecord = testParameterRepository.findById(parameter.getId()).get();
+					Optional<TestParameter> optTestParameter = testParameterRepository.findById(parameter.getId());
+					if (optTestParameter.isEmpty()) {
+						throw new DataNotFoundException();
+					}
+					TestParameter formerRecord = optTestParameter.get();
 					parameter.setFile(formerRecord.getFile());
 					parameter.setFileName(formerRecord.getFileName());
 				}
@@ -342,18 +346,16 @@ abstract public class ApiTestPageBase extends VerticalPageBase {
 		}
 
 	}
+
 	protected List<Details> getCommonDetails() {
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "endpointUrl", "guide.testPageBase.endpointUrl" });
-		detailContentList.add(new String[] { "apiName", "guide.testPageBase.apiName" });
+		detailContentList.add(new String[] { API_NAME, "guide.testPageBase.apiName" });
 		detailContentList.add(new String[] { "method", "guide.testPageBase.method" });
 		detailContentList.add(new String[] { "parameterAndName", "guide.testPageBase.parameterAndName" });
-		
+
 		return createGuideDetails(detailContentList);
-		
 
 	}
-	
-	
-	
+
 }
