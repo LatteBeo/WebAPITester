@@ -29,11 +29,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 public class TestController {
 	@Autowired
-	ApiRepository apiRepository;
+	private ApiRepository apiRepository;
 	@Autowired
-	ParameterRepository parameterRepository;
+	private ParameterRepository parameterRepository;
 	@Autowired
-	TestSetRepository testSetRepository;
+	private TestSetRepository testSetRepository;
 	private static final String API_DOWNLOAD_HEADER = "attachment; filename=\"" + "api.json" + "\"";
 	private static final String TESTSET_DOWNLOAD_HEADER = "attachment; filename=\"" + "testset.json" + "\"";
 
@@ -41,17 +41,16 @@ public class TestController {
 	 * Download all api list json file.
 	 * 
 	 * @return Json file
-	 * @throws JsonProcessingException 
+	 * @throws JsonProcessingException
 	 */
 	@GetMapping("/rest/api/download")
 	public ResponseEntity<String> downloadAPIListJson() throws JsonProcessingException {
 		List<Api> apiList = new ArrayList<>();
 		apiRepository.findAll().forEach(apiList::add);
 
-			final String jsonString = new ObjectMapper().writeValueAsString(apiList);
-			return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-					.header(HttpHeaders.CONTENT_DISPOSITION, API_DOWNLOAD_HEADER).body(jsonString);
-		
+		final String jsonString = new ObjectMapper().writeValueAsString(apiList);
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.header(HttpHeaders.CONTENT_DISPOSITION, API_DOWNLOAD_HEADER).body(jsonString);
 	}
 
 	/**
@@ -59,20 +58,19 @@ public class TestController {
 	 * 
 	 * @param params Url request parameters(testsetid=id)
 	 * @return Json file
-	 * @throws DataNotFoundException 
-	 * @throws JsonProcessingException 
+	 * @throws DataNotFoundException
+	 * @throws JsonProcessingException
 	 */
 	@GetMapping("/rest/testset/download")
-	public ResponseEntity<String> downloadTestSetJson(@RequestParam Map<String, String> params) throws DataNotFoundException, JsonProcessingException {
+	public ResponseEntity<String> downloadTestSetJson(@RequestParam Map<String, String> params)
+			throws DataNotFoundException, JsonProcessingException {
 		Optional<TestSet> optTestSet = testSetRepository.findById(Integer.parseInt(params.get("testsetid")));
 		if (optTestSet.isEmpty()) {
 			throw new DataNotFoundException();
 		}
-
-			final String jsonString = new ObjectMapper().writeValueAsString(optTestSet.get());
-			return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-					.header(HttpHeaders.CONTENT_DISPOSITION, TESTSET_DOWNLOAD_HEADER).body(jsonString);
-		
+		final String jsonString = new ObjectMapper().writeValueAsString(optTestSet.get());
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.header(HttpHeaders.CONTENT_DISPOSITION, TESTSET_DOWNLOAD_HEADER).body(jsonString);
 	}
 
 	/**

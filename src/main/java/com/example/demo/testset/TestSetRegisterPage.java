@@ -24,6 +24,7 @@ public class TestSetRegisterPage extends TestSetCommonInputPage implements Befor
 		for (int i = 0; i < 20; i++) {
 			testSetDetailBinderList.add(null);
 		}
+		componentService.addBlankLabel(layout, 2);
 		addComponent(layout, BUTTON_REGISTER, componentService.createButton(getTranslation("register"), i -> {
 			try {
 				writeBeans();
@@ -34,6 +35,7 @@ public class TestSetRegisterPage extends TestSetCommonInputPage implements Befor
 			saveDetails();
 			this.getUI().ifPresent(ui -> ui.navigate(TestSetListPage.class));
 		}));
+		setColSpan(layout, BUTTON_REGISTER, 1);
 		return layout;
 	}
 

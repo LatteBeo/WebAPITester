@@ -33,6 +33,8 @@ public class ApiUpdatePage extends ApiCommonInputPage implements BeforeEnterObse
 	@Override
 	protected Component createComponent() {
 		FormLayout layout = createForm();
+		componentService.addBlankLabel(layout, MAX_COL);
+
 		apiBinder.bind((IntegerField) getComponent(FIELD_API_ID), "id");
 
 		addComponent(layout, BUTTON_UPDATE, componentService.createButton(getTranslation("update"), i -> {
@@ -49,14 +51,15 @@ public class ApiUpdatePage extends ApiCommonInputPage implements BeforeEnterObse
 					apiRepository.delete(api);
 					this.getUI().ifPresent(ui -> ui.navigate(ApiListPage.class));
 				}));
-		addComponent(layout, CONFIRM_DIALOG_BUTTON, componentService
-				.createOpenConfirmDialogButton(getTranslation(PageConstant.DELETE), (ConfirmDialog) getComponent(CONFIRM_DIALOG)));
+		addComponent(layout, CONFIRM_DIALOG_BUTTON, componentService.createOpenConfirmDialogButton(
+				getTranslation(PageConstant.DELETE), (ConfirmDialog) getComponent(CONFIRM_DIALOG)));
 		return layout;
 	}
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		Optional<Api> optApi = apiRepository.findById(Integer.parseInt(event.getRouteParameters().get(FIELD_API_ID).orElse("")));
+		Optional<Api> optApi = apiRepository
+				.findById(Integer.parseInt(event.getRouteParameters().get(FIELD_API_ID).orElse("")));
 		if (optApi.isEmpty()) {
 			return;
 		}
@@ -72,19 +75,23 @@ public class ApiUpdatePage extends ApiCommonInputPage implements BeforeEnterObse
 		}
 	}
 
+	/**
+	 * Exec update.
+	 */
 	private void execUpdate() {
 		api = apiRepository.save(api);
 		parameterRepository.deleteByApi_id(api.getId());
-		parameterList.stream().filter(i -> i.getName() != null && !i.getName().isBlank()).forEach(i -> {
-			i.setApi(api);
-			parameterRepository.save(i);
+		parameterList.stream().filter(i -> i.getName() != null && !i.getName().isBlank()).forEach(j -> {
+			j.setApi(api);
+			parameterRepository.save(j);
 		});
 	}
+
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
 		getCommonGuideDetails().forEach(layout::add);
-		
+
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "update", "guide.apiUpdate.update" });
 		detailContentList.add(new String[] { "delete", "guide.apiUpdate.delete" });

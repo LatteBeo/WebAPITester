@@ -26,7 +26,7 @@ import com.vaadin.flow.router.RouterLink;
  */
 @Route("test/list")
 public class TestListPage extends VerticalPageBase {
-	
+
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	transient TestRepository testRepository;
@@ -35,9 +35,9 @@ public class TestListPage extends VerticalPageBase {
 	protected Component createComponent() {
 		VerticalLayout layout = new VerticalLayout();
 		layout.setWidth(1000, Unit.PIXELS);
-		
+
 		layout.add(new RouterLink(getTranslation("registerTest"), TestRegisterPage.class));
-		
+
 		Grid<Test> grid = new Grid<>(Test.class, false);
 		grid.addColumn(createLinkComponent()).setHeader(getTranslation("endpointName"));
 		grid.addColumn(Test::getMethod).setHeader(getTranslation("method"));
@@ -49,6 +49,7 @@ public class TestListPage extends VerticalPageBase {
 		registerComponent(GRID, grid);
 		return layout;
 	}
+
 	private ComponentRenderer<RouterLink, Test> createLinkComponent() {
 		return new ComponentRenderer<>(RouterLink::new, (linkComponent, endPoint) -> {
 			Map<String, String> map = new HashMap<>();
@@ -57,6 +58,7 @@ public class TestListPage extends VerticalPageBase {
 			linkComponent.setRoute(TestUpdatePage.class, new RouteParameters(map));
 		});
 	}
+
 	@Override
 	protected Component createGuideComponent() {
 		List<String[]> detailContentList = new ArrayList<>();

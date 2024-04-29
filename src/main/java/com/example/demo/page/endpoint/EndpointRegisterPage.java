@@ -18,6 +18,7 @@ public class EndpointRegisterPage extends EndpointCommonInputPage {
 	@Override
 	protected Component createComponent() {
 		FormLayout layout = createForm();
+		componentService.addBlankLabel(layout, maxColSize);
 		addComponent(layout, BUTTON_REGISTER, componentService.createButton(getTranslation("register"), i -> {
 			try {
 				binder.writeBean(endpoint);

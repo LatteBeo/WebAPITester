@@ -38,6 +38,7 @@ public class TestRegisterPage extends ApiTestPageBase implements BeforeEnterObse
 
 		addComponent(layout, FIELD_TEST_MEMO, componentService.createTextField(getTranslation("memo"), 300, 300));
 		setColSpan(layout, FIELD_TEST_MEMO, max_col);
+		componentService.addBlankLabel(layout, max_col);
 		testBinder.bind((TextField) getComponent(FIELD_TEST_MEMO), "memo");
 
 		addComponent(layout, BUTTON_REGISTER, componentService.createButton(getTranslation("register"), i -> {
@@ -80,14 +81,10 @@ public class TestRegisterPage extends ApiTestPageBase implements BeforeEnterObse
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
 		getCommonDetails().forEach(layout::add);
-		
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "apiTestPageBase.01", "guide.apiTestSendPage.01" });
 		detailContentList.add(new String[] { "expectedValue", "guide.apiTestSendPage.expectedValue" });
-		
 		createGuideDetails(detailContentList).forEach(layout::add);
-		
-		
 		return layout;
 	}
 }

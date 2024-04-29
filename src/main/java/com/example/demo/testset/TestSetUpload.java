@@ -20,6 +20,7 @@ import com.example.demo.repository.TestRepository;
 import com.example.demo.repository.TestSetDetailRepository;
 import com.example.demo.repository.TestSetRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
@@ -98,5 +99,10 @@ public class TestSetUpload extends SingleFileUploadPageBase {
 			newDetail.setTestSet(newTestSet);
 			testSetDetailRepository.save(newDetail);
 		}
+	}
+
+	@Override
+	protected Text createExplainMessage() {
+		return new Text(getTranslation("testSetUpload.01"));
 	}
 }

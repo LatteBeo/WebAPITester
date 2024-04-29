@@ -39,8 +39,8 @@ public class TestSetListPage extends VerticalPageBase {
 		
 		
 		Grid<TestSet> grid = new Grid<>(TestSet.class, false);
-		grid.addColumn(TestSet::getId).setHeader(getTranslation("testSetId"));
 		grid.addColumn(createLinkComponent()).setHeader(getTranslation("testSetName"));
+		grid.addColumn(TestSet::getId).setHeader(getTranslation("testSetId"));
 		List<TestSet> list = new ArrayList<>();
 		testSetRepository.findAll().forEach(list::add);
 		layout.add(grid);

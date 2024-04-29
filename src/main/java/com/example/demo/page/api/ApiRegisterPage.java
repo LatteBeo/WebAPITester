@@ -22,6 +22,7 @@ public class ApiRegisterPage extends ApiCommonInputPage implements BeforeEnterOb
 	@Override
 	protected Component createComponent() {
 		FormLayout layout = createForm();
+		componentService.addBlankLabel(layout, MAX_COL);
 
 		addComponent(layout, BUTTON_REGISTER, componentService.createButton(getTranslation("register"), i -> {
 			try {
@@ -35,11 +36,14 @@ public class ApiRegisterPage extends ApiCommonInputPage implements BeforeEnterOb
 		return layout;
 	}
 
+	/**
+	 * Exec register.
+	 */
 	private void execRegister() {
 		api = apiRepository.save(api);
-		parameterList.stream().filter(i -> (i.getName() != null && !i.getName().isBlank())).forEach(i -> {
-			i.setApi(api);
-			parameterRepository.save(i);
+		parameterList.stream().filter(i -> (i.getName() != null && !i.getName().isBlank())).forEach(j -> {
+			j.setApi(api);
+			parameterRepository.save(j);
 		});
 	}
 
@@ -49,6 +53,7 @@ public class ApiRegisterPage extends ApiCommonInputPage implements BeforeEnterOb
 			parameterList.add(new Parameter());
 		}
 	}
+
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();

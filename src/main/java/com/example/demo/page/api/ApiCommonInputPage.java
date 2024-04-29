@@ -51,18 +51,17 @@ abstract class ApiCommonInputPage extends VerticalPageBase {
 
 		addComponent(layout, FIELD_API_NAME, componentService.createTextField(getTranslation("apiName"), 300, 300));
 		setColSpan(layout, FIELD_API_NAME, MAX_COL);
-
 		apiBinder.bind((TextField) getComponent(FIELD_API_NAME), "name");
 
 		addComponent(layout, FIELD_API_ID, componentService.createIntegerField("", 300));
 		getComponent(FIELD_API_ID).setVisible(false);
 		setColSpan(layout, FIELD_API_ID, 2);
-		
+
 		VerticalLayout paramTitleArea = new VerticalLayout();
 		paramTitleArea.add(new Text(getTranslation("parameterName")));
 		layout.add(paramTitleArea);
 		layout.setColspan(paramTitleArea, MAX_COL);
-		
+
 		for (int i = 1; i < 21; i++) {
 			addComponent(layout, PREFIX_PARAM + String.valueOf(i), componentService.createTextField("", 300, 300));
 			BeanValidationBinder<Parameter> binder = new BeanValidationBinder<>(Parameter.class);
@@ -72,14 +71,21 @@ abstract class ApiCommonInputPage extends VerticalPageBase {
 		return layout;
 	}
 
+	/**
+	 * Write input data to the beans.
+	 * 
+	 * @throws ValidationException
+	 */
 	protected void writeBeans() throws ValidationException {
 		apiBinder.writeBean(api);
 		for (int x = 0; x < 20; x++) {
 			parameterBinderList.get(x).writeBean(parameterList.get(x));
 		}
 	}
+
 	/**
 	 * Get common guide details.
+	 * 
 	 * @return Guide details list
 	 */
 	protected List<Details> getCommonGuideDetails() {

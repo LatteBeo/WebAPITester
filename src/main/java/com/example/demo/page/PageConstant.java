@@ -1,5 +1,8 @@
 package com.example.demo.page;
 
+/**
+ * Constant class.
+ */
 public class PageConstant {
 	private PageConstant() {
 		//NOP

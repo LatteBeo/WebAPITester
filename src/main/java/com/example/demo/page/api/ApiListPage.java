@@ -50,6 +50,11 @@ public class ApiListPage extends VerticalPageBase {
 		return layout;
 	}
 
+	/**
+	 * Create api list grid.
+	 * 
+	 * @return Grid
+	 */
 	private Grid<Api> createGrid() {
 		Grid<Api> grid = new Grid<>(Api.class, false);
 		grid.addColumn(createLinkComponent()).setHeader(getTranslation("apiName"));
@@ -61,6 +66,11 @@ public class ApiListPage extends VerticalPageBase {
 		return grid;
 	}
 
+	/**
+	 * Create link component.
+	 * 
+	 * @return Renderer
+	 */
 	private ComponentRenderer<RouterLink, Api> createLinkComponent() {
 		return new ComponentRenderer<>(RouterLink::new, (link, api) -> {
 			Map<String, String> map = new HashMap<>();

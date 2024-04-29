@@ -25,35 +25,48 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 abstract class EndpointCommonInputPage extends VerticalPageBase {
 
 	private static final long serialVersionUID = 1L;
-	
+	protected static final int maxColSize = 4;
+
 	@Autowired
 	transient EndpointRepository endpointRepository;
 	Endpoint endpoint = new Endpoint();
 	BeanValidationBinder<Endpoint> binder = new BeanValidationBinder<>(Endpoint.class);
-	
+
+	/**
+	 * Create form.
+	 * 
+	 * @return Form
+	 */
 	protected FormLayout createForm() {
 		FormLayout layout = new FormLayout();
-		layout.setResponsiveSteps(new ResponsiveStep("0", 2));
-		
-		addComponent(layout, FIELD_ENDPOINT_NAME, componentService.createTextField(getTranslation("endpointName"), 300, 300));
-		addComponent(layout, FIELD_ENDPOINT_URL, componentService.createTextField(getTranslation("endpointUrl"), 300, 300));
+		layout.setResponsiveSteps(new ResponsiveStep("0", maxColSize));
+
+		addComponent(layout, FIELD_ENDPOINT_NAME,
+				componentService.createTextField(getTranslation("endpointName"), 300, 300));
+		addComponent(layout, FIELD_ENDPOINT_URL,
+				componentService.createTextField(getTranslation("endpointUrl"), 300, 300));
 
 		IntegerField endpointIdField = componentService.createIntegerField("", 300);
 		endpointIdField.setVisible(false);
 		addComponent(layout, FIELD_ENDPOINT_ID, endpointIdField);
 
-		setColSpan(layout, FIELD_ENDPOINT_NAME, 2);
-		setColSpan(layout, FIELD_ENDPOINT_URL, 2);
-		
+		setColSpan(layout, FIELD_ENDPOINT_NAME, maxColSize);
+		setColSpan(layout, FIELD_ENDPOINT_URL, maxColSize);
+
 		binder.bind((TextField) getComponent(FIELD_ENDPOINT_NAME), "name");
 		binder.bind((TextField) getComponent(FIELD_ENDPOINT_URL), "url");
 		return layout;
 	}
+
+	/**
+	 * Create common guide details.
+	 * 
+	 * @return Guide details.
+	 */
 	protected List<Details> getCommonDetails() {
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "endpointName", "guide.endpointRegister.endpointName" });
 		detailContentList.add(new String[] { "endpointUrl", "guide.endpointRegister.endpointUrl" });
 		return createGuideDetails(detailContentList);
 	}
-
 }

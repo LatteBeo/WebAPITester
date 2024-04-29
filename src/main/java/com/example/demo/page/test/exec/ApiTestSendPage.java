@@ -62,6 +62,7 @@ public class ApiTestSendPage extends ApiTestPageBase implements BeforeEnterObser
 	protected Component createComponent() {
 		FormLayout layout = createForm();
 		setColSpan(layout, GRID, max_col);
+		componentService.addBlankLabel(layout, max_col);
 
 		Button submitButton = componentService.createButton(getTranslation("submitRequest"), i -> {
 	
@@ -90,6 +91,8 @@ public class ApiTestSendPage extends ApiTestPageBase implements BeforeEnterObser
 					}
 				}));
 		setColSpan(layout, BUTTON_SCREENSHOT, max_col / 2);
+		
+		componentService.addBlankLabel(layout, max_col);
 
 		TextArea resultUrlArea = createDisabledTextArea(getTranslation("resultUrl"), 999999);
 		registerComponent(FIELD_RESULT_URL, resultUrlArea);

@@ -48,9 +48,10 @@ public abstract class TestSetCommonInputPage extends VerticalPageBase {
 
 	protected FormLayout createForm() {
 		FormLayout layout = new FormLayout();
-		layout.setResponsiveSteps(new ResponsiveStep("0", 1));
+		layout.setResponsiveSteps(new ResponsiveStep("0", 2));
 		addComponent(layout, FIELD_TEST_SET_NAME,
 				componentService.createTextField(getTranslation("testSetName"), 300, 300));
+		setColSpan(layout, FIELD_TEST_SET_NAME, 2);
 		addComponent(layout, TEST_NAME_DIALOG, createTestSelectDialog());
 		Grid<TestSetDetail> grid = new Grid<>(TestSetDetail.class, false);
 		grid.addColumn(createTestParamFieldRenderer()).setHeader(getTranslation("testId"));
@@ -58,6 +59,7 @@ public abstract class TestSetCommonInputPage extends VerticalPageBase {
 		grid.addColumn(createTestParamFieldRenderer3()).setHeader("");
 		layout.add(grid);
 		registerComponent(GRID, grid);
+		setColSpan(layout, GRID, 2);
 		testSetBinder.bind((TextField) getComponent(FIELD_TEST_SET_NAME), "name");
 		return layout;
 	}

@@ -13,7 +13,9 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog.ConfirmEvent;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -201,5 +203,16 @@ public class ComponentService {
 		Details details = new Details(title, textArea);
 		details.setWidthFull();
 		return details;
+	}
+	/**
+	 * Add blank label to the layout.
+	 * @param layout FormLayout
+	 * @param colspan Colspan
+	 */
+	public void addBlankLabel(FormLayout layout, int colspan) {
+		NativeLabel nativeLabel = new NativeLabel(" ");
+		nativeLabel.setHeight("1em");
+		layout.add(nativeLabel);
+		layout.setColspan(nativeLabel, colspan);		
 	}
 }

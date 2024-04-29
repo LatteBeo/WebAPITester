@@ -149,21 +149,6 @@ public abstract class VerticalPageBase extends VerticalLayout {
 	}
 
 	/**
-	 * Create dialog open button.
-	 * 
-	 * @param fieldName           Field name
-	 * @param dialogComponentName Dialog component name
-	 * @param text                Dialog message
-	 * @return Button
-	 */
-	protected Button createOpenDialogButton(String fieldName, String dialogComponentName, String text) {
-		Button button = new Button(text);
-		button.addClickListener(i -> ((Dialog) getComponent(dialogComponentName)).open());
-		registerComponent(fieldName, button);
-		return button;
-	}
-
-	/**
 	 * Set value to the supecified component.
 	 * 
 	 * @param fieldName Field name
@@ -197,7 +182,7 @@ public abstract class VerticalPageBase extends VerticalLayout {
 	 * 
 	 * @param fieldName Field name
 	 * @return Uploaded file
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	protected UploadedFile getUploadedFile(String fieldName) throws IOException {
 		Upload uploadField = (Upload) getComponent(fieldName);
@@ -206,10 +191,10 @@ public abstract class VerticalPageBase extends VerticalLayout {
 		byte[] buffer = new byte[1024];
 		int length;
 
-			while ((length = inputStream.read(buffer)) != -1) {
-				byteOutputStream.write(buffer, 0, length);
-			}
-		
+		while ((length = inputStream.read(buffer)) != -1) {
+			byteOutputStream.write(buffer, 0, length);
+		}
+
 		UploadedFile file = new UploadedFile();
 		file.setFile(byteOutputStream.toByteArray());
 		file.setFileName(((FileBuffer) uploadField.getReceiver()).getFileName());

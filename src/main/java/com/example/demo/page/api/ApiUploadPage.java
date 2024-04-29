@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,39 +37,50 @@ public class ApiUploadPage extends SingleFileUploadPageBase {
 
 	@Override
 	protected Button createRegisterButton() {
-		Upload upload = (Upload) getComponent("file");
-
 		return componentService.createButton(getTranslation("register"), i -> {
-			File is = ((FileBuffer) upload.getReceiver()).getFileData().getFile();
-			try {
-				String jsonString = Files.lines(is.toPath())
-						.collect(Collectors.joining(System.getProperty("line.separator")));
-				Api[] apiArray = new ObjectMapper().readValue(jsonString, Api[].class);
-
-				for (Api originalApi : apiArray) {
-					Api newApi = new Api();
-					List<Parameter> newParameterList = new ArrayList<>();
-					newApi.setName(originalApi.getName());
-					Api savedApi = apiRepository.save(newApi);
-
-					originalApi.getParameter().forEach(j -> {
-						Parameter parameter = new Parameter();
-						parameter.setApi(savedApi);
-						parameter.setName(j.getName());
-						parameterRepository.save(parameter);
-					});
-					newApi.setParameter(newParameterList);
-				}
-			} catch (IOException e) {
-				return;
-			}
-			this.getUI().ifPresent(ui -> ui.navigate(ApiListPage.class));
+			register();
 		});
 	}
+
+	/**
+	 * Exec register.
+	 */
+	private void register() {
+		Upload upload = (Upload) getComponent("file");
+		File is = ((FileBuffer) upload.getReceiver()).getFileData().getFile();
+		try (Stream<String> lineStream = Files.lines(is.toPath())) {
+			String jsonString = lineStream.collect(Collectors.joining(System.getProperty("line.separator")));
+			Api[] apiArray = new ObjectMapper().readValue(jsonString, Api[].class);
+
+			for (Api originalApi : apiArray) {
+				Api newApi = new Api();
+				List<Parameter> newParameterList = new ArrayList<>();
+				newApi.setName(originalApi.getName());
+				Api savedApi = apiRepository.save(newApi);
+
+				originalApi.getParameter().forEach(j -> {
+					Parameter parameter = new Parameter();
+					parameter.setApi(savedApi);
+					parameter.setName(j.getName());
+					parameterRepository.save(parameter);
+				});
+				newApi.setParameter(newParameterList);
+			}
+		} catch (IOException e) {
+			return;
+		}
+		this.getUI().ifPresent(ui -> ui.navigate(ApiListPage.class));
+	}
+
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
 		layout.add(new Text(getTranslation("guide.apiUpload.summary")));
 		return layout;
+	}
+
+	@Override
+	protected Text createExplainMessage() {
+		return new Text(getTranslation("apiUpload.01"));
 	}
 }

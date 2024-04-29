@@ -25,7 +25,7 @@ import static com.example.demo.page.PageConstant.*;
  */
 @Route("endpoint/list")
 public class EndpointListPage extends VerticalPageBase {
-	
+
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	transient EndpointRepository endpointRepository;
@@ -35,7 +35,7 @@ public class EndpointListPage extends VerticalPageBase {
 		VerticalLayout layout = new VerticalLayout();
 		layout.setWidth(1000, Unit.PIXELS);
 		layout.add(new RouterLink(getTranslation("registerEndpoint"), EndpointRegisterPage.class));
-		
+
 		Grid<Endpoint> grid = new Grid<>(Endpoint.class, false);
 		grid.addColumn(createLinkComponent()).setHeader(getTranslation("endpointName"));
 		grid.addColumn(Endpoint::getUrl).setHeader(getTranslation("url"));
@@ -55,13 +55,12 @@ public class EndpointListPage extends VerticalPageBase {
 			linkComponent.setRoute(EndpointUpdatePage.class, new RouteParameters(map));
 		});
 	}
+
 	@Override
 	protected Component createGuideComponent() {
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "registerEndpoint", "guide.endpointList.registerEndpoint" });
-		
-		
-		
+		detailContentList.add(new String[] { "endpointName", "guide.endpointList.endpointName" });
 		VerticalLayout layout = new VerticalLayout();
 		createGuideDetails(detailContentList).forEach(layout::add);
 		return layout;

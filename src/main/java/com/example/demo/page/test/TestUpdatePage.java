@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.DataNotFoundException;
@@ -54,7 +53,7 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 	protected Component createComponent() {
 		FormLayout layout = createForm();
 
-		addComponent(layout, FIELD_TEST_MEMO, componentService.createTextField("memo", 300, 300));
+		addComponent(layout, FIELD_TEST_MEMO, componentService.createTextField(getTranslation("memo"), 300, 300));
 
 		IntegerField integerField = componentService.createIntegerField("", 300);
 		integerField.setVisible(false);
@@ -74,16 +73,13 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 			}
 			this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
 		}));
-
-			addComponent(layout, CONFIRM_DIALOG, componentService.createConfirmDialog(
-					getTranslation("apiUpdatePage.01"), getTranslation("delete"), getTranslation("cancel"), i -> {
-						testRepository.delete(test);
-						this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
-					}));
-			addComponent(layout, CONFIRM_DIALOG_BUTTON, componentService.createOpenConfirmDialogButton(
-					getTranslation("delete"), (ConfirmDialog) getComponent(CONFIRM_DIALOG)));
-		
-
+		addComponent(layout, CONFIRM_DIALOG, componentService.createConfirmDialog(getTranslation("apiUpdatePage.01"),
+				getTranslation("delete"), getTranslation("cancel"), i -> {
+					testRepository.delete(test);
+					this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
+				}));
+		addComponent(layout, CONFIRM_DIALOG_BUTTON, componentService
+				.createOpenConfirmDialogButton(getTranslation("delete"), (ConfirmDialog) getComponent(CONFIRM_DIALOG)));
 		return layout;
 	}
 
@@ -135,16 +131,17 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 		}
 		Grid<TestAssertion> grid2 = (Grid<TestAssertion>) getComponent(GRID2);
 		grid2.setItems(testAssertionList);
-		
+
 		if (!test.getTestSetDetail().isEmpty()) {
-			((Button)getComponent(CONFIRM_DIALOG_BUTTON)).setVisible(false);
+			((Button) getComponent(CONFIRM_DIALOG_BUTTON)).setVisible(false);
 		}
 	}
 
 	@Override
 	protected Grid<TestParameter> createTestParameterGrid() {
 		Grid<TestParameter> grid = new Grid<>(TestParameter.class, false);
-		grid.addColumn(createTestParamFieldRenderer()).setFlexGrow(0).setWidth("400px");
+		grid.addColumn(createTestParamFieldRenderer()).setFlexGrow(0).setWidth("400px")
+				.setHeader(getTranslation("parameterAndName"));
 		grid.addColumn(createFileLinkRenderer()).setFlexGrow(0);
 		grid.addColumn(createUploadRenderer());
 		registerComponent(GRID, grid);
@@ -168,18 +165,18 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 			}
 		});
 	}
+
 	@Override
 	protected Component createGuideComponent() {
 		VerticalLayout layout = new VerticalLayout();
 		getCommonDetails().forEach(layout::add);
-		
+
 		List<String[]> detailContentList = new ArrayList<>();
 		detailContentList.add(new String[] { "apiTestPageBase.01", "guide.apiTestSendPage.01" });
 		detailContentList.add(new String[] { "expectedValue", "guide.apiTestSendPage.expectedValue" });
-		
+
 		createGuideDetails(detailContentList).forEach(layout::add);
-		
-		
+
 		return layout;
 	}
 }

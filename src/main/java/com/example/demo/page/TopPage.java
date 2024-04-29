@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import com.example.demo.page.api.ApiListPage;
 import com.example.demo.page.endpoint.EndpointListPage;
+import com.example.demo.page.manual.WebApiManualPage;
 import com.example.demo.page.test.TestListPage;
 import com.example.demo.page.test.exec.ApiTestSendPage;
 import com.example.demo.page.test.exec.TestExecPage;
@@ -37,6 +38,7 @@ public class TopPage extends VerticalPageBase {
 		layout.add(componentService.createLink(getTranslation("testResultList"), TestResultListPage.class));
 		layout.add(componentService.createLink(getTranslation("testAPI"), ApiTestSendPage.class));
 		layout.add(componentService.createLink(getTranslation("testSetList"), TestSetListPage.class));
+		layout.add(componentService.createLink(getTranslation("manual.webapi"), WebApiManualPage.class));
 		if (VaadinSession.getCurrent().getLocale() == Locale.JAPANESE) {
 			addComponent(layout, BUTTON_EN, componentService.createButton(getTranslation("english"), i -> {
 				VaadinSession.getCurrent().setLocale(Locale.ENGLISH);

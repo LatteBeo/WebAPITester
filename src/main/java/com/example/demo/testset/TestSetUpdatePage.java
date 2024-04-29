@@ -35,6 +35,7 @@ public class TestSetUpdatePage extends TestSetCommonInputPage implements BeforeE
 		addComponent(layout, FIELD_TEST_SET_ID, componentService.createIntegerField("", 300));
 		getComponent(FIELD_TEST_SET_ID).setVisible(false);
 		testSetBinder.bind((IntegerField) getComponent(FIELD_TEST_SET_ID), "id");
+		componentService.addBlankLabel(layout, 2);
 
 		addComponent(layout, BUTTON_UPDATE, componentService.createButton(getTranslation("update"), i -> {
 			try {

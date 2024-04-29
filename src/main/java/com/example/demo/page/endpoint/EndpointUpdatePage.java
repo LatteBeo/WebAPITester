@@ -33,7 +33,7 @@ public class EndpointUpdatePage extends EndpointCommonInputPage implements Befor
 	protected Component createComponent() {
 		FormLayout layout = createForm();
 		binder.bind((IntegerField) getComponent(FIELD_ENDPOINT_ID), "id");
-
+		componentService.addBlankLabel(layout, maxColSize);
 		addComponent(layout, BUTTON_UPDATE, componentService.createButton(getTranslation("update"), i -> {
 			try {
 				binder.writeBean(endpoint);
@@ -50,6 +50,8 @@ public class EndpointUpdatePage extends EndpointCommonInputPage implements Befor
 				}));
 		addComponent(layout, CONFIRM_DIALOG_BUTTON, componentService.createOpenConfirmDialogButton(getTranslation(PageConstant.DELETE),
 				(ConfirmDialog) getComponent(CONFIRM_DIALOG)));
+		setColSpan(layout, BUTTON_UPDATE, maxColSize / 4);
+		setColSpan(layout, CONFIRM_DIALOG_BUTTON, maxColSize / 4);
 		return layout;
 	}
 
