@@ -20,6 +20,7 @@ import com.example.demo.DataNotFoundException;
 import com.example.demo.entity.Test;
 import com.example.demo.entity.TestAssertion;
 import com.example.demo.entity.TestParameter;
+import com.example.demo.page.PageConstant;
 import com.example.demo.page.test.exec.ApiTestPageBase;
 import com.example.demo.repository.TestAssertionRepository;
 import com.vaadin.flow.component.Component;
@@ -73,7 +74,7 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 			}
 			this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
 		}));
-		addComponent(layout, CONFIRM_DIALOG, componentService.createConfirmDialog(getTranslation("apiUpdatePage.01"),
+		addComponent(layout, CONFIRM_DIALOG, componentService.createConfirmDialog(getTranslation("testUpdatePage.02"),
 				getTranslation("delete"), getTranslation("cancel"), i -> {
 					testRepository.delete(test);
 					this.getUI().ifPresent(ui -> ui.navigate(TestListPage.class));
@@ -134,6 +135,7 @@ public class TestUpdatePage extends ApiTestPageBase implements BeforeEnterObserv
 
 		if (!test.getTestSetDetail().isEmpty()) {
 			((Button) getComponent(CONFIRM_DIALOG_BUTTON)).setVisible(false);
+			((VerticalLayout)getComponent(PageConstant.MAINLAYOUT)).add(componentService.createAlertText(getTranslation("testUpdatePage.01")));
 		}
 	}
 
