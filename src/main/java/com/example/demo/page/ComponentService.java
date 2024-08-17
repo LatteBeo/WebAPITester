@@ -16,6 +16,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -166,6 +167,7 @@ public class ComponentService {
 	 */
 	public Dialog createSelectDialog(Grid<?> grid) {
 		Dialog dialog = new Dialog();
+		dialog.setWidth(50, Unit.PERCENTAGE);
 		VerticalLayout layout = new VerticalLayout();
 		layout.add(grid);
 		dialog.add(layout);
@@ -214,5 +216,15 @@ public class ComponentService {
 		nativeLabel.setHeight("1em");
 		layout.add(nativeLabel);
 		layout.setColspan(nativeLabel, colspan);		
+	}
+	/**
+	 * Create alert message text.
+	 * @param text
+	 * @return Span
+	 */
+	public Span createAlertText(String text) {
+		Span span = new Span(text);
+		span.getStyle().setColor("red");
+		return span;
 	}
 }
