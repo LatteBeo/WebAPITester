@@ -19,9 +19,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.details.Details;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -61,7 +59,7 @@ public abstract class VerticalPageBase extends VerticalLayout {
 		registerComponent(TOPLAYOUT, topLayout);
 		topLayout.setWidthFull();
 
-		Component mainComponent = createComponent();
+		Component mainComponent = createMainComponent();
 		registerComponent(MAINLAYOUT, mainComponent);
 		((HasSize) mainComponent).setWidth(MAIN_NORMAL_WIDTH);
 
@@ -107,6 +105,18 @@ public abstract class VerticalPageBase extends VerticalLayout {
 		topLayout.add(guideLayout);
 
 		add(topLayout);
+	}
+	/**
+	 * Create main component.
+	 * @return Main component.
+	 */
+	private Component createMainComponent() {
+		VerticalLayout layout = new VerticalLayout();
+		Icon homeIcon = VaadinIcon.HOME.create();
+		homeIcon.addClickListener(event -> this.getUI().ifPresent(ui -> ui.navigate(TopPage.class)));
+		layout.add(homeIcon);
+		layout.add(createComponent());
+		return layout;
 	}
 
 	/**
