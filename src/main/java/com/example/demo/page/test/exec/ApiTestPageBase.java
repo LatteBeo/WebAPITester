@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,6 +37,7 @@ import com.example.demo.repository.ApiRepository;
 import com.example.demo.repository.EndpointRepository;
 import com.example.demo.repository.TestParameterRepository;
 import com.example.demo.repository.TestRepository;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -45,14 +47,19 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 public abstract class ApiTestPageBase extends VerticalPageBase {
 	private static final long serialVersionUID = 1L;
@@ -128,12 +135,38 @@ public abstract class ApiTestPageBase extends VerticalPageBase {
 
 	protected Dialog createApiSelectDialog() {
 		Grid<Api> grid = new Grid<>(Api.class, false);
-		grid.addColumn(createApiNameButtonComponent()).setHeader(getTranslation(API_NAME));
+		Column<Api> column = grid.addColumn(createApiNameButtonComponent()).setHeader(getTranslation(API_NAME));
 		grid.setAllRowsVisible(true);
 		List<Api> apiList = new ArrayList<>();
 		apiRepository.findAll().forEach(apiList::add);
-		grid.setItems(apiList);
+		GridListDataView<Api> dataListView = grid.setItems(apiList);
+		// Setting filtering feature
+		ApiFilter filter = new ApiFilter(dataListView);
+		grid.getHeaderRows().clear();
+		grid.appendHeaderRow().getCell(column).setComponent(createFilterHeader(filter::setApiName));
+
 		return componentService.createSelectDialog(grid);
+	}
+
+	/**
+	 * Create filter input column.
+	 * 
+	 * @param filterChangeConsumer
+	 * @return Input column.
+	 */
+	private static Component createFilterHeader(Consumer<String> filterChangeConsumer) {
+		TextField textField = new TextField();
+		textField.setPlaceholder(textField.getTranslation("apiTestPageBase.02"));
+		textField.setValueChangeMode(ValueChangeMode.EAGER);
+		textField.setClearButtonVisible(true);
+		textField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+		textField.setWidthFull();
+		textField.getStyle().set("max-width", "100%");
+		textField.addValueChangeListener(e -> filterChangeConsumer.accept(e.getValue()));
+		VerticalLayout layout = new VerticalLayout(textField);
+		layout.getThemeList().clear();
+		layout.getThemeList().add("spacing-xs");
+		return layout;
 	}
 
 	protected Dialog createEndpointSelectDialog() {
@@ -260,7 +293,8 @@ public abstract class ApiTestPageBase extends VerticalPageBase {
 		return grid;
 	}
 
-	protected List<TestParameter> createRegisterOrUpdateTestParameterList(Test test) throws DataNotFoundException, IOException {
+	protected List<TestParameter> createRegisterOrUpdateTestParameterList(Test test)
+			throws DataNotFoundException, IOException {
 		List<TestParameter> parameterList = new ArrayList<>();
 		for (int j = 1; j < 21; j++) {
 			String fieldName = PREFIX_PARAM + String.valueOf(j);
