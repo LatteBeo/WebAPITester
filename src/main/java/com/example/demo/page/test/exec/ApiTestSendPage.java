@@ -65,33 +65,35 @@ public class ApiTestSendPage extends ApiTestPageBase implements BeforeEnterObser
 		componentService.addBlankLabel(layout, max_col);
 
 		Button submitButton = componentService.createButton(getTranslation("submitRequest"), i -> {
-	
-				try {
-					testBinder.writeBean(test);
-					for (int x = 0; x < 20; x++) {
+
+			try {
+				testBinder.writeBean(test);
+				for (int x = 0; x < 20; x++) {
 					testParameterBinderList.get(x).writeBean(testParameterList.get(x));
 				}
 				callAPI();
-				} catch (ValidationException | IOException e) {
-					return;
-				}
-				
+			} catch (ValidationException | IOException e) {
+				return;
+			}
 
-			
 		});
 		addComponent(layout, BUTTON_SUBMIT, submitButton);
-		setColSpan(layout, BUTTON_SUBMIT, max_col / 2);
+		setColSpan(layout, BUTTON_SUBMIT, max_col / 3);
 
-		addComponent(layout, BUTTON_SCREENSHOT,
-				componentService.createButton(getTranslation("screenshot"), i -> {
-					try {
-						downloadScreenshot();
-					} catch (HeadlessException | IOException | AWTException e) {
-						return;
-					}
-				}));
-		setColSpan(layout, BUTTON_SCREENSHOT, max_col / 2);
-		
+		Button jsonEditorButton = new Button(getTranslation("apiTestSendPage.01"));
+		jsonEditorButton.addClickListener(i -> UI.getCurrent().getPage().open("/jsonedit"));
+		layout.add(jsonEditorButton);
+		layout.setColspan(jsonEditorButton, max_col / 3);
+
+		addComponent(layout, BUTTON_SCREENSHOT, componentService.createButton(getTranslation("screenshot"), i -> {
+			try {
+				downloadScreenshot();
+			} catch (HeadlessException | IOException | AWTException e) {
+				return;
+			}
+		}));
+		setColSpan(layout, BUTTON_SCREENSHOT, max_col / 3);
+
 		componentService.addBlankLabel(layout, max_col);
 
 		TextArea resultUrlArea = createDisabledTextArea(getTranslation("resultUrl"), 999999);
@@ -161,7 +163,7 @@ public class ApiTestSendPage extends ApiTestPageBase implements BeforeEnterObser
 		}
 		setValue(FIELD_RESULT_URL, result.requestUrl());
 		setValue(FIELD_RESULT, result.responseString());
-			setValue(FIELD_DECODED_URL, URLDecoder.decode(result.requestUrl(), "UTF-8"));
+		setValue(FIELD_DECODED_URL, URLDecoder.decode(result.requestUrl(), "UTF-8"));
 	}
 
 	@Override

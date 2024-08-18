@@ -1,0 +1,36 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Json editor</title>
+	<script th:src="@{/js/jsoneditor.min.js}"></script>
+	<link th:href="@{/css/jsoneditor.min.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div id="jsoneditor" style="width: 50%; height: 50%;"></div>
+	<button onclick="outputJson();">Output json</button><br>
+	<span id="output"></span>
+
+	<script>
+		const container = document.getElementById("jsoneditor");
+		const options = {};
+		const editor = new JSONEditor(container, options);
+
+		// set json
+		const initialJson = {
+
+		};
+		editor.set(initialJson);
+
+		// get json
+		const updatedJson = editor.get();
+
+		function outputJson() {
+			document.getElementById("output").innerHTML = editor.getText();
+		}
+	</script>
+</body>
+
+</html>
