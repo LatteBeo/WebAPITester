@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClient.ResponseSpec;
 
 /**
  * Service class of API caller.
@@ -40,8 +39,8 @@ public class ApiCallerService {
 			}
 			RestClient client = RestClient.builder().requestInterceptor(interceptor).build();
 			execDate = LocalDateTime.now();
-			ResponseSpec response = client.get().uri(urlBuilder.toString(), urlParam).retrieve();
-			return new RequestResult(interceptor.getRequestUrl(), response.body(String.class), true, execDate);
+			String responseBody = client.get().uri(urlBuilder.toString(), urlParam).retrieve().body(String.class);
+			return new RequestResult(interceptor.getRequestUrl(), responseBody, true, execDate);
 		} catch (Exception e) {
 			return new RequestResult(interceptor.getRequestUrl(), e.getMessage(), false, execDate);
 		}
@@ -66,9 +65,9 @@ public class ApiCallerService {
 			urlBuilder.append(endpointUrl).append("/").append(apiName);
 			RestClient client = RestClient.builder().requestInterceptor(interceptor).build();
 			execDate = LocalDateTime.now();
-			ResponseSpec response = client.post().uri(urlBuilder.toString()).contentType(MediaType.MULTIPART_FORM_DATA)
-					.body(parts).retrieve();
-			return new RequestResult(interceptor.getRequestUrl(), response.body(String.class), true, execDate);
+			String responseBody = client.post().uri(urlBuilder.toString()).contentType(MediaType.MULTIPART_FORM_DATA)
+					.body(parts).retrieve().body(String.class);
+			return new RequestResult(interceptor.getRequestUrl(), responseBody, true, execDate);
 		} catch (Exception e) {
 			return new RequestResult(interceptor.getRequestUrl(), e.getMessage(), false, execDate);
 		}
